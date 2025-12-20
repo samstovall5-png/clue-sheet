@@ -32,7 +32,7 @@
       margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background: linear-gradient(180deg, #f7fbff, #eef5ff 55%, #f7fbff);
       color:var(--text);
-      overflow:hidden; /* no page scroll */
+      overflow:hidden;
     }
 
     /* Top bar */
@@ -70,7 +70,7 @@
       border-color: rgba(255,255,255,.65);
     }
 
-    /* App layout (no page scroll) */
+    /* Layout */
     main{
       position:fixed;
       top:var(--topbarH);
@@ -93,6 +93,7 @@
       flex:0 0 auto;
     }
     .banner strong{color:var(--good)}
+    .banner .muted{color:var(--muted); font-size:12px; margin-top:4px; font-weight:700}
 
     .card{
       border:2px solid var(--line);
@@ -106,58 +107,13 @@
       flex:1 1 auto;
     }
 
-    /* Guess panel */
-    .guessBar{
-      padding:10px 10px;
-      border-bottom:2px solid var(--line);
-      background:linear-gradient(180deg, var(--blue3), #f5f9ff);
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-      flex:0 0 auto;
-    }
-    .gField{
-      display:flex; flex-direction:column; gap:4px;
-      min-width:150px;
-      flex: 1 1 160px;
-    }
-    .gField label{
-      font-size:11px; font-weight:900; color:var(--muted);
-      letter-spacing:.2px;
-    }
-    select{
-      width:100%;
-      padding:10px 10px;
-      border-radius:10px;
-      border:2px solid var(--line);
-      background:white;
-      color:var(--text);
-      outline:none;
-      font-size:14px;
-      font-weight:800;
-    }
-    .gActions{
-      display:flex; gap:8px; flex-wrap:wrap;
-      align-items:flex-end;
-    }
-    .gActions button{
-      color:var(--blue);
-      background:white;
-      border:2px solid var(--line);
-      font-weight:900;
-    }
-    .gActions button:hover{background:#f4f8ff}
-    .gActions button.primary{border-color:var(--blue)}
-    .gActions button.danger{border-color:#d83a3a; color:#d83a3a}
-
     /* Tabs */
     .tabs{
       display:flex;
       gap:6px;
       padding:8px;
       border-bottom:2px solid var(--line);
-      background:white;
+      background:linear-gradient(180deg, var(--blue3), #f5f9ff);
       flex:0 0 auto;
     }
     .tab{
@@ -300,14 +256,14 @@
     tr.foundRow td:first-child{background:#f0fbf3;}
     tr.foundRow td:first-child .pill{border-color:#2f7a3a;color:var(--good);background:#eaf7ee;}
 
-    /* Modals / popups */
+    /* Overlays / Modals */
     .overlay{
       position:fixed; inset:0; background:rgba(22,50,95,.35);
       display:none; align-items:center; justify-content:center;
       padding:16px; z-index:50;
     }
     .modal{
-      width:min(720px, 100%);
+      width:min(760px, 100%);
       background:white;
       border:2px solid var(--line);
       border-radius:14px;
@@ -335,7 +291,7 @@
       padding:12px;
     }
     label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:900}
-    input, textarea{
+    input, textarea, select{
       width:100%;
       padding:10px 10px;
       border-radius:10px;
@@ -344,9 +300,10 @@
       color:var(--text);
       outline:none;
       font-size:14px;
-      font-weight:700;
+      font-weight:800;
     }
     textarea{min-height:130px; resize:vertical}
+
     .modalFoot{
       padding:12px 14px;
       display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;
@@ -362,6 +319,7 @@
     .modalFoot button.primary{border-color:var(--blue); color:var(--blue)}
     .modalFoot button.danger{border-color:#d83a3a; color:#d83a3a}
 
+    /* Cell Popup */
     .popup{
       position:fixed; inset:0;
       display:none; align-items:flex-end; justify-content:center;
@@ -421,7 +379,6 @@
     @media (max-width:520px){
       :root{ --topbarH: 58px; }
       header .sub{display:none}
-      .gField{min-width:120px}
     }
   </style>
 </head>
@@ -429,9 +386,10 @@
   <header>
     <div class="left">
       <div class="title">Detective Notes</div>
-      <div class="sub">Make a guess, record who showed a card, and solve WHO/WHAT/WHERE.</div>
+      <div class="sub">Tap a box → ❌ / ✅ / ❓ • Use “Guess” to record a guess.</div>
     </div>
     <div class="right">
+      <button class="primary" id="btnGuess">Guess</button>
       <button class="primary" id="btnSetup">Players</button>
       <button id="btnEditLists">Lists</button>
       <button class="danger" id="btnResetMarks">Reset</button>
@@ -442,41 +400,12 @@
     <div class="banner" id="banner"></div>
 
     <div class="card">
-      <!-- Guess panel -->
-      <div class="guessBar">
-        <div class="gField">
-          <label>WHO?</label>
-          <select id="selGuessWho"></select>
-        </div>
-        <div class="gField">
-          <label>WHAT?</label>
-          <select id="selGuessWhat"></select>
-        </div>
-        <div class="gField">
-          <label>WHERE?</label>
-          <select id="selGuessWhere"></select>
-        </div>
-        <div class="gField" style="flex:1 1 220px; min-width:200px">
-          <label>Who showed a card?</label>
-          <select id="selResponder"></select>
-          <div style="font-size:11px; color:var(--muted); font-weight:800; margin-top:4px;">
-            Choose a player, or “No one (solution)”.
-          </div>
-        </div>
-        <div class="gActions">
-          <button class="primary" id="btnApplyGuess">Apply</button>
-          <button class="danger" id="btnClearGuess">Clear</button>
-        </div>
-      </div>
-
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" data-tab="people">WHO?</button>
         <button class="tab" data-tab="items">WHAT?</button>
         <button class="tab" data-tab="rooms">WHERE?</button>
       </div>
 
-      <!-- only ONE players header -->
       <div class="playerHeader" id="playerHeader"></div>
 
       <div class="sheet">
@@ -486,6 +415,54 @@
       </div>
     </div>
   </main>
+
+  <!-- Guess Modal -->
+  <div class="overlay" id="overlayGuess">
+    <div class="modal">
+      <header>
+        <div class="left">
+          <div class="title">Make a Guess</div>
+          <div class="sub">Pick WHO / WHAT / WHERE, then choose who showed a card (or no one).</div>
+        </div>
+        <div class="right">
+          <button id="closeGuess">Close</button>
+        </div>
+      </header>
+
+      <div class="modalBody">
+        <div class="row">
+          <div class="field">
+            <label>WHO?</label>
+            <select id="selGuessWho"></select>
+          </div>
+          <div class="field">
+            <label>WHAT?</label>
+            <select id="selGuessWhat"></select>
+          </div>
+          <div class="field">
+            <label>WHERE?</label>
+            <select id="selGuessWhere"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex:1 1 520px">
+            <label>Who showed a card?</label>
+            <select id="selResponder"></select>
+            <div style="color:var(--muted); font-size:12px; margin-top:8px; font-weight:800;">
+              • If a player showed a card, we mark ❓ for that player on all 3 choices (since you don’t know which one).<br>
+              • If <strong>No one</strong> could show, we mark ❌ for <strong>all active players</strong> on all 3 (meaning they’re in the solution).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFoot">
+        <button class="danger" id="btnClearGuess">Clear</button>
+        <button class="primary" id="btnApplyGuess">Apply</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Setup Modal -->
   <div class="overlay" id="overlaySetup">
@@ -601,7 +578,7 @@ if ("serviceWorker" in navigator) {
 }
 
 /** Storage */
-const KEY = "digital_clue_sheet_v3_blue_guess";
+const KEY = "digital_clue_sheet_v4_blue_guessmodal";
 const defaultState = () => ({
   activePlayers: 5,
   players: ["Player 1","Player 2","Player 3","Player 4","Player 5"],
@@ -671,11 +648,14 @@ const tabItems  = document.getElementById("tab-items");
 const tabRooms  = document.getElementById("tab-rooms");
 const tabs = Array.from(document.querySelectorAll(".tab"));
 
+/** Guess modal refs */
+const overlayGuess = document.getElementById("overlayGuess");
 const selGuessWho   = document.getElementById("selGuessWho");
 const selGuessWhat  = document.getElementById("selGuessWhat");
 const selGuessWhere = document.getElementById("selGuessWhere");
 const selResponder  = document.getElementById("selResponder");
 
+/** Render pieces */
 function renderPlayerHeader(){
   const active = state.activePlayers;
   const cells = [];
@@ -697,7 +677,7 @@ function computeSolved(section){
     }
     if(allX) solved.push(r);
   }
-  return solved; // could be 0 or multiple
+  return solved;
 }
 
 function updateBanner(solved){
@@ -715,14 +695,10 @@ function updateBanner(solved){
   banner.style.display = "block";
   if(parts.length === 3){
     banner.innerHTML = `<div><strong>✅ Case solved!</strong> ${parts.join(" • ")}</div>
-      <div style="color:var(--muted); font-size:12px; margin-top:4px;">
-        (Each solved row is X for all active players.)
-      </div>`;
+      <div class="muted">(Each solved row is X for all active players.)</div>`;
   }else{
     banner.innerHTML = `<div><strong>✅ Discovery!</strong> ${parts.join(" • ")}</div>
-      <div style="color:var(--muted); font-size:12px; margin-top:4px;">
-        (A row became X for all active players.)
-      </div>`;
+      <div class="muted">(A row became X for all active players.)</div>`;
   }
 }
 
@@ -730,7 +706,6 @@ function renderSection(section, solved){
   const rows = state.lists[section];
   const active = state.activePlayers;
 
-  // If exactly one solved row exists in this section, grey others (like you wanted originally)
   const solvedMain = (solved.length === 1) ? solved[0] : null;
 
   let html = `<table><tbody>`;
@@ -763,11 +738,10 @@ function renderSection(section, solved){
 function fillSelectOptions(selectEl, items){
   const prev = selectEl.value;
   selectEl.innerHTML = items.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-  // try to keep selection
   if(items.includes(prev)) selectEl.value = prev;
 }
 
-function renderGuessPanel(){
+function renderGuessModal(){
   fillSelectOptions(selGuessWho, state.lists.people);
   fillSelectOptions(selGuessWhat, state.lists.items);
   fillSelectOptions(selGuessWhere, state.lists.rooms);
@@ -785,18 +759,14 @@ function applyGuess(){
   const who = selGuessWho.value;
   const what = selGuessWhat.value;
   const where = selGuessWhere.value;
-  const resp = selResponder.value; // "none" or player index string
+  const resp = selResponder.value;
 
-  // Convert names to row indexes
   const whoIdx = state.lists.people.indexOf(who);
   const whatIdx = state.lists.items.indexOf(what);
   const whereIdx = state.lists.rooms.indexOf(where);
-
   if(whoIdx < 0 || whatIdx < 0 || whereIdx < 0) return;
 
   if(resp === "none"){
-    // No one could show => they are in the solution:
-    // mark X for ALL active players for these rows (all categories)
     for(const sec of ["people","items","rooms"]){
       const idx = (sec==="people")?whoIdx : (sec==="items")?whatIdx : whereIdx;
       for(let p=0;p<state.activePlayers;p++){
@@ -805,11 +775,9 @@ function applyGuess(){
     }
   }else{
     const p = Number(resp);
-    // That player had ONE of the 3. We don't know which, so:
-    // mark "?" for those 3 at that player (unless already X or ✓).
     const setQ = (sec, idx) => {
       const cur = state.marks[sec][idx][p];
-      if(cur === 0) state.marks[sec][idx][p] = 3; // only set if blank
+      if(cur === 0) state.marks[sec][idx][p] = 3;
     };
     setQ("people", whoIdx);
     setQ("items",  whatIdx);
@@ -817,13 +785,13 @@ function applyGuess(){
   }
 
   renderAll();
+  closeGuess();
 }
 
 function clearGuess(){
   selResponder.value = "none";
 }
 
-/** Main render */
 function renderAll(){
   ensureMarksShape(state,"people"); ensureMarksShape(state,"items"); ensureMarksShape(state,"rooms");
 
@@ -832,11 +800,10 @@ function renderAll(){
     items:  computeSolved("items"),
     rooms:  computeSolved("rooms")
   };
-
   updateBanner(solved);
 
   renderPlayerHeader();
-  renderGuessPanel();
+  renderGuessModal();
 
   tabPeople.innerHTML = renderSection("people", solved.people);
   tabItems.innerHTML  = renderSection("items",  solved.items);
@@ -852,6 +819,15 @@ function showTab(which){
   tabRooms.style.display  = (which==="rooms")  ? "block" : "none";
   tabs.forEach(t => t.classList.toggle("active", t.dataset.tab===which));
   document.querySelector(".sheet").scrollTop = 0;
+}
+
+/** Guess modal open/close */
+function openGuess(){
+  renderGuessModal();
+  overlayGuess.style.display = "flex";
+}
+function closeGuess(){
+  overlayGuess.style.display = "none";
 }
 
 /** Cell popup */
@@ -892,8 +868,10 @@ document.addEventListener("click", (e)=>{
     return;
   }
 
+  if(btn.id === "btnGuess"){ openGuess(); return; }
   if(btn.id === "btnApplyGuess"){ applyGuess(); return; }
   if(btn.id === "btnClearGuess"){ clearGuess(); return; }
+  if(btn.id === "closeGuess"){ closeGuess(); return; }
 
   if(btn.dataset && btn.dataset.section){
     const section = btn.dataset.section;
@@ -903,6 +881,9 @@ document.addEventListener("click", (e)=>{
     openPopup(section,row,player);
   }
 });
+
+/** Overlay background clicks */
+overlayGuess.addEventListener("click", (e)=>{ if(e.target === overlayGuess) closeGuess(); });
 
 /** Popup buttons */
 document.getElementById("popX").addEventListener("click", ()=>setCell(1));
