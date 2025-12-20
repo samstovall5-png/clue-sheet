@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detective Notes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="title">Detective Notes</div>
+      <div class="subtitle">
+        Tap a box → <span class="x">X</span> / <span class="check">✔</span> / <span class="q">?</span>.
+        Use “Guess” to record a guess.
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button id="playersBtn" class="btn small">Players</button>
+      <button id="listsBtn" class="btn small">Lists</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="controls">
+      <div class="tabs">
+        <button class="tab active" data-tab="suspect">WHO?</button>
+        <button class="tab" data-tab="weapon">WHAT?</button>
+        <button class="tab" data-tab="room">WHERE?</button>
+      </div>
+
+      <div class="actions">
+        <button id="guessBtn" class="btn">Guess</button>
+        <button id="newGameBtn" class="btn danger">New Game</button>
+      </div>
+    </section>
+
+    <section class="gridWrap">
+      <div id="sheet" class="sheet"></div>
+    </section>
+
+    <section class="myCardsBar">
+      <div class="myCardsTitle">My Cards</div>
+      <div id="myCardsList" class="myCardsList"></div>
+    </section>
+  </main>
+
+  <!-- My Cards Modal -->
+  <div id="myCardsModal" class="modal hidden" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h2>Select your cards</h2>
+        <button id="myCardsClose" class="iconBtn" title="Close">✕</button>
+      </div>
+      <div class="modalHint">Tap cards to select/deselect, then press Done.</div>
+
+      <div class="filterRow">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="suspect">Who</button>
+        <button class="chip" data-filter="weapon">What</button>
+        <button class="chip" data-filter="room">Where</button>
+      </div>
+
+      <div id="myCardsGrid" class="cardGrid"></div>
+
+      <div class="modalActions">
+        <button id="myCardsCancel" class="btn secondary">Cancel</button>
+        <button id="myCardsDone" class="btn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guess Modal -->
+  <div id="guessModal" class="modal hidden" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h2>Make a guess</h2>
+        <button id="guessClose" class="iconBtn" title="Close">✕</button>
+      </div>
+
+      <div class="guessForm">
+        <label>WHO?</label>
+        <select id="guessSuspect"></select>
+
+        <label>WHAT?</label>
+        <select id="guessWeapon"></select>
+
+        <label>WHERE?</label>
+        <select id="guessRoom"></select>
+      </div>
+
+      <div class="modalActions">
+        <button id="guessCancel" class="btn secondary">Cancel</button>
+        <button id="guessContinue" class="btn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reveal Modal -->
+  <div id="revealModal" class="modal hidden" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h2>What was shown?</h2>
+        <button id="revealClose" class="iconBtn" title="Close">✕</button>
+      </div>
+
+      <div id="guessSummary" class="guessSummary"></div>
+
+      <label class="blockLabel">Who showed a card?</label>
+      <select id="revealPlayer"></select>
+
+      <label class="blockLabel">What card was shown?</label>
+      <select id="revealCard"></select>
+
+      <div class="revealRow">
+        <button id="noOneShowed" class="btn secondary">No one showed</button>
+        <button id="revealConfirm" class="btn">Confirm</button>
+      </div>
+
+      <div class="smallNote">
+        If a card is <b>Owned</b> by you, “No one showed” ignores that card but still applies to the other two.
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
