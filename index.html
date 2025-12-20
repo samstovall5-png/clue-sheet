@@ -398,11 +398,14 @@
       const isFound=solvedMain===r;
 
       h+=`<tr class="${owned?"ownedRow":""}">`;
-      h+=`<td><div class="rowLabel"><span class="nameText ${owned?"owned":""}">${esc(name)}</span>`+
-          (isFound?`<span class="pill solved">SOLVED</span>`:"")+
-          (owned?`<span class="pill">${mine?"MY CARD":"OWNED"}</span>`:"")+
-          `</div></td>`;
-
+      h+=`<td><div class="rowLabel">
+      <div class="nameStack">
+        <span class="nameText ${owned?"owned":""}">${esc(name)}</span>
+        ${(isFound?`<span class="pill solved">SOLVED</span>`:"")}
+        ${(owned?`<span class="pill">${mine?"MY CARD":"OWNED"}</span>`:"")}
+      </div>
+    </div></td>`;
+      
       for(let p=0;p<5;p++){
         const disabled=p>=state.activePlayers;
         const v=state.marks[sec][r][p]||0;
