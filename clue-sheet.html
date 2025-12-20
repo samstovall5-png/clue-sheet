@@ -376,9 +376,24 @@
     .popupFoot button.danger{border-color:#d83a3a; color:#d83a3a}
     .popupFoot button:hover{background:#f4f8ff}
 
+    
+    /* NEW: horizontal scroll inside sheet so player headers don't smash together on small screens */
+    table{ min-width: 760px; }
+    .sheet{ overflow:auto; }
+
+    /* NEW: make player header borders more visible */
+    .playerHeader{ border-top:1px solid var(--line); }
+    .phCell{ border-right:2px solid var(--line); }
+
     @media (max-width:520px){
-      :root{ --topbarH: 58px; }
+      :root{ --topbarH: 92px; }
       header .sub{display:none}
+      header{padding:8px 10px;}
+      header .right button{padding:8px 10px; font-size:13px; border-radius:9px;}
+      header .right{gap:6px;}
+      .phCell{font-size:11px;}
+      table{min-width:720px;}
+
     }
   </style>
 </head>
@@ -463,6 +478,40 @@
       </div>
     </div>
   </div>
+
+
+  <!-- Shown Card Modal -->
+  <div class="overlay" id="overlayShown">
+    <div class="modal">
+      <header>
+        <div class="left">
+          <div class="title">What was shown?</div>
+          <div class="sub">Pick the exact card that was shown to you.</div>
+        </div>
+        <div class="right">
+          <button id="closeShown">Close</button>
+        </div>
+      </header>
+
+      <div class="modalBody">
+        <div class="row">
+          <div class="field" style="flex:1 1 520px">
+            <label>Card shown</label>
+            <select id="selShownCard"></select>
+            <div style="color:var(--muted); font-size:12px; margin-top:8px; font-weight:800;">
+              If you don’t know which card, choose <strong>Unknown</strong> and we’ll mark ❓ on all 3 like before.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFoot">
+        <button class="danger" id="btnUnknownShown">Unknown</button>
+        <button class="primary" id="btnConfirmShown">Confirm</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Setup Modal -->
   <div class="overlay" id="overlaySetup">
@@ -655,6 +704,35 @@ const selGuessWhat  = document.getElementById("selGuessWhat");
 const selGuessWhere = document.getElementById("selGuessWhere");
 const selResponder  = document.getElementById("selResponder");
 
+
+/** Shown card modal refs */
+const overlayShown = document.getElementById("overlayShown");
+const selShownCard = document.getElementById("selShownCard");
+let pendingGuess = null; // {whoIdx, whatIdx, whereIdx, player}
+
+/** Shown modal open/close */
+function openShown(guess){
+  pendingGuess = guess;
+  // Build options: Unknown + three choices labeled by category
+  const whoName = state.lists.people[guess.whoIdx];
+  const whatName = state.lists.items[guess.whatIdx];
+  const whereName = state.lists.rooms[guess.whereIdx];
+
+  selShownCard.innerHTML = `
+    <option value="unknown">Unknown</option>
+    <option value="people">${escapeHtml("WHO: " + whoName)}</option>
+    <option value="items">${escapeHtml("WHAT: " + whatName)}</option>
+    <option value="rooms">${escapeHtml("WHERE: " + whereName)}</option>
+  `;
+  selShownCard.value = "unknown";
+  overlayShown.style.display = "flex";
+}
+function closeShown(){
+  overlayShown.style.display = "none";
+  pendingGuess = null;
+}
+
+
 /** Render pieces */
 function renderPlayerHeader(){
   const active = state.activePlayers;
@@ -767,30 +845,66 @@ function applyGuess(){
   if(whoIdx < 0 || whatIdx < 0 || whereIdx < 0) return;
 
   if(resp === "none"){
+    // No one could show => all three are in the solution
     for(const sec of ["people","items","rooms"]){
       const idx = (sec==="people")?whoIdx : (sec==="items")?whatIdx : whereIdx;
       for(let p=0;p<state.activePlayers;p++){
-        state.marks[sec][idx][p] = 1;
+        state.marks[sec][idx][p] = 1; // X
       }
     }
-  }else{
-    const p = Number(resp);
-    const setQ = (sec, idx) => {
-      const cur = state.marks[sec][idx][p];
-      if(cur === 0) state.marks[sec][idx][p] = 3;
-    };
-    setQ("people", whoIdx);
-    setQ("items",  whatIdx);
-    setQ("rooms",  whereIdx);
+    renderAll();
+    closeGuess();
+    return;
   }
 
-  renderAll();
-  closeGuess();
+  // A player showed you a card. Ask WHICH card.
+  const p = Number(resp);
+  openShown({ whoIdx, whatIdx, whereIdx, player: p });
 }
 
 function clearGuess(){
   selResponder.value = "none";
 }
+
+
+function unknownShown(){
+  // mark ? on all 3 for that player (only if blank)
+  if(!pendingGuess) return;
+  const p = pendingGuess.player;
+  const setQ = (sec, idx) => {
+    const cur = state.marks[sec][idx][p];
+    if(cur === 0) state.marks[sec][idx][p] = 3;
+  };
+  setQ("people", pendingGuess.whoIdx);
+  setQ("items",  pendingGuess.whatIdx);
+  setQ("rooms",  pendingGuess.whereIdx);
+
+  closeShown();
+  renderAll();
+  closeGuess();
+}
+
+function confirmShown(){
+  if(!pendingGuess) return;
+  const p = pendingGuess.player;
+  const chosen = selShownCard.value;
+
+  if(chosen === "unknown"){
+    unknownShown();
+    return;
+  }
+
+  // Put a CHECK on the exact card that was shown under that player's column
+  const setCheck = (sec, idx) => { state.marks[sec][idx][p] = 2; }; // ✓
+  if(chosen === "people") setCheck("people", pendingGuess.whoIdx);
+  if(chosen === "items")  setCheck("items",  pendingGuess.whatIdx);
+  if(chosen === "rooms")  setCheck("rooms",  pendingGuess.whereIdx);
+
+  closeShown();
+  renderAll();
+  closeGuess();
+}
+
 
 function renderAll(){
   ensureMarksShape(state,"people"); ensureMarksShape(state,"items"); ensureMarksShape(state,"rooms");
@@ -872,6 +986,9 @@ document.addEventListener("click", (e)=>{
   if(btn.id === "btnApplyGuess"){ applyGuess(); return; }
   if(btn.id === "btnClearGuess"){ clearGuess(); return; }
   if(btn.id === "closeGuess"){ closeGuess(); return; }
+  if(btn.id === "closeShown"){ closeShown(); return; }
+  if(btn.id === "btnConfirmShown"){ confirmShown(); return; }
+  if(btn.id === "btnUnknownShown"){ unknownShown(); return; }
 
   if(btn.dataset && btn.dataset.section){
     const section = btn.dataset.section;
@@ -884,6 +1001,7 @@ document.addEventListener("click", (e)=>{
 
 /** Overlay background clicks */
 overlayGuess.addEventListener("click", (e)=>{ if(e.target === overlayGuess) closeGuess(); });
+overlayShown.addEventListener("click", (e)=>{ if(e.target === overlayShown) closeShown(); });
 
 /** Popup buttons */
 document.getElementById("popX").addEventListener("click", ()=>setCell(1));
