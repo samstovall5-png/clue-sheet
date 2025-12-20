@@ -1,4 +1,4 @@
-const CACHE = "clue-sheet-blue-v6";
+const CACHE = "clue-sheet-blue-v7";
 const ASSETS = [
   "./",
   "./clue-sheet.html",

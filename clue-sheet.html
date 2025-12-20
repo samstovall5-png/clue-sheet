@@ -378,21 +378,66 @@
 
     
     /* NEW: horizontal scroll inside sheet so player headers don't smash together on small screens */
-    table{ min-width: 760px; }
+    table{
     .sheet{ overflow:auto; }
 
     /* NEW: make player header borders more visible */
     .playerHeader{ border-top:1px solid var(--line); }
     .phCell{ border-right:2px solid var(--line); }
 
+
+    /* v7: fit on one screen (no scrolling) + lock columns (no side-to-side) */
+    .sheet{ overflow:hidden; } /* no scroll */
+    td{ padding:6px 4px; font-size:13px; }
+    td:first-child{ width:30%; padding-left:10px; }
+    .cellBtn{ min-height:28px; padding:6px 0; border-radius:8px; }
+    .phCell{ white-space:normal; line-height:1.05; font-size:11px; padding:0 4px; }
+    .playerHeader{ grid-template-columns: 30% repeat(5, 1fr); height:42px; }
+    .tabs{ padding:8px 8px 6px; }
+    .tab{ height:40px; font-size:14px; }
+    .rowLabel span.nameText.owned{ text-decoration: line-through; opacity:.7; }
+    tr.ownedRow{ opacity:.55; }
+    tr.ownedRow td:first-child{ background:#f1f1f1; }
+    tr.ownedRow td:first-child .pill{ border-color:#9aa6b7; color:#6c7a90; background:#f5f6f8; }
+    .cardTray{
+      border-top:2px solid var(--line);
+      background:linear-gradient(180deg, #f6faff, #ffffff);
+      padding:10px 10px 12px;
+      flex:0 0 auto;
+    }
+    .trayTitle{
+      font-weight:900; color:var(--blue); letter-spacing:.2px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom:8px;
+    }
+    .trayGrid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:8px;
+    }
+    .cardMini{
+      border:2px solid var(--line);
+      border-radius:12px;
+      background:white;
+      padding:8px 8px;
+      min-height:70px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-shadow: 0 6px 16px rgba(20,60,120,.08);
+      overflow:hidden;
+    }
+    .cardMini .k{ font-size:10px; font-weight:900; color:var(--muted); }
+    .cardMini .v{ font-size:12px; font-weight:900; color:var(--text); line-height:1.1; }
+
     @media (max-width:520px){
-      :root{ --topbarH: 92px; }
+      :root{ --topbarH: 86px; }
       header .sub{display:none}
       header{padding:8px 10px;}
       header .right button{padding:8px 10px; font-size:13px; border-radius:9px;}
       header .right{gap:6px;}
       .phCell{font-size:11px;}
-      table{min-width:720px;}
+      table{
 
     }
   </style>
@@ -405,6 +450,7 @@
     </div>
     <div class="right">
       <button class="primary" id="btnGuess">Guess</button>
+      <button class="primary" id="btnMyCards">My Cards</button>
       <button class="primary" id="btnSetup">Players</button>
       <button id="btnEditLists">Lists</button>
       <button class="danger" id="btnResetMarks">Reset</button>
@@ -427,6 +473,14 @@
         <div id="tab-people"></div>
         <div id="tab-items" style="display:none"></div>
         <div id="tab-rooms" style="display:none"></div>
+      </div>
+
+      <div class="cardTray">
+        <div class="trayTitle">
+          <span>My Cards</span>
+          <span style="font-size:12px; color:var(--muted); font-weight:800;">(placeholders)</span>
+        </div>
+        <div class="trayGrid" id="trayGrid"></div>
       </div>
     </div>
   </main>
@@ -508,6 +562,45 @@
       <div class="modalFoot">
         <button class="danger" id="btnUnknownShown">Unknown</button>
         <button class="primary" id="btnConfirmShown">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- My Cards Modal -->
+  <div class="overlay" id="overlayMyCards">
+    <div class="modal">
+      <header>
+        <div class="left">
+          <div class="title">My Cards</div>
+          <div class="sub">Select the cards you are holding (these show at the bottom).</div>
+        </div>
+        <div class="right">
+          <button id="closeMyCards">Close</button>
+        </div>
+      </header>
+
+      <div class="modalBody">
+        <div class="row">
+          <div class="field">
+            <label>WHO?</label>
+            <div id="myPeople" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+          </div>
+          <div class="field">
+            <label>WHAT?</label>
+            <div id="myItems" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+          </div>
+          <div class="field">
+            <label>WHERE?</label>
+            <div id="myRooms" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modalFoot">
+        <button class="danger" id="btnClearMyCards">Clear</button>
+        <button class="primary" id="btnSaveMyCards">Save</button>
       </div>
     </div>
   </div>
@@ -636,7 +729,8 @@ const defaultState = () => ({
     items: ["Candlestick","Dagger","Lead Pipe","Revolver","Rope","Wrench"],
     rooms: ["Ballroom","Billiard Room","Conservatory","Dining Room","Hall","Kitchen","Library","Lounge","Study"]
   },
-  marks: { people: [], items: [], rooms: [] }
+  marks: { people: [], items: [], rooms: [] },
+  myCards: { people: [], items: [], rooms: [] }
 });
 
 function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
@@ -662,8 +756,11 @@ function sanitize(obj){
       }
     }
     if(obj.marks && typeof obj.marks==="object") s.marks = obj.marks;
+    if(obj.myCards && typeof obj.myCards==="object") s.myCards = obj.myCards;
   }
   ensureMarksShape(s,"people"); ensureMarksShape(s,"items"); ensureMarksShape(s,"rooms");
+  if(!s.myCards || typeof s.myCards!=="object") s.myCards = {people:[],items:[],rooms:[]};
+  for(const k of ["people","items","rooms"]){ if(!Array.isArray(s.myCards[k])) s.myCards[k]=[]; }
   return s;
 }
 
@@ -696,6 +793,13 @@ const tabPeople = document.getElementById("tab-people");
 const tabItems  = document.getElementById("tab-items");
 const tabRooms  = document.getElementById("tab-rooms");
 const tabs = Array.from(document.querySelectorAll(".tab"));
+
+const trayGrid = document.getElementById("trayGrid");
+const overlayMyCards = document.getElementById("overlayMyCards");
+const myPeople = document.getElementById("myPeople");
+const myItems = document.getElementById("myItems");
+const myRooms = document.getElementById("myRooms");
+
 
 /** Guess modal refs */
 const overlayGuess = document.getElementById("overlayGuess");
@@ -743,6 +847,67 @@ function renderPlayerHeader(){
     cells.push(`<div class="phCell${disabled}">${escapeHtml(state.players[i] || ("Player "+(i+1)))}</div>`);
   }
   playerHeader.innerHTML = cells.join("");
+
+function renderTray(){
+  const cards = [];
+  for(const name of (state.myCards.people||[])) cards.push({k:"WHO", v:name});
+  for(const name of (state.myCards.items||[]))  cards.push({k:"WHAT", v:name});
+  for(const name of (state.myCards.rooms||[]))  cards.push({k:"WHERE", v:name});
+
+  if(cards.length === 0){
+    trayGrid.innerHTML = `<div style="color:var(--muted); font-weight:800; font-size:12px;">No cards selected yet. Tap <strong>My Cards</strong>.</div>`;
+    return;
+  }
+  trayGrid.innerHTML = cards.map(c=>`
+    <div class="cardMini">
+      <div class="k">${escapeHtml(c.k)}</div>
+      <div class="v">${escapeHtml(c.v)}</div>
+    </div>
+  `).join("");
+}
+
+function renderMyCardsModal(){
+  const build = (rootEl, list, selectedArr) => {
+    rootEl.innerHTML = list.map(name=>{
+      const checked = selectedArr.includes(name) ? "checked" : "";
+      return `
+        <label style="display:flex; gap:8px; align-items:center; background:white; border:1px solid var(--line); padding:8px 10px; border-radius:10px; font-weight:800; color:var(--text);">
+          <input type="checkbox" data-mc="${escapeHtml(name)}" ${checked} style="width:18px; height:18px;">
+          <span style="font-size:13px;">${escapeHtml(name)}</span>
+        </label>
+      `;
+    }).join("");
+  };
+  build(myPeople, state.lists.people, state.myCards.people||[]);
+  build(myItems,  state.lists.items,  state.myCards.items||[]);
+  build(myRooms,  state.lists.rooms,  state.myCards.rooms||[]);
+}
+
+function openMyCards(){
+  renderMyCardsModal();
+  overlayMyCards.style.display = "flex";
+}
+function closeMyCards(){
+  overlayMyCards.style.display = "none";
+}
+
+function clearMyCards(){
+  state.myCards = {people:[], items:[], rooms:[]};
+  renderAll();
+  closeMyCards();
+}
+function saveMyCards(){
+  const grab = (rootEl) => Array.from(rootEl.querySelectorAll('input[type="checkbox"]'))
+      .filter(cb=>cb.checked).map(cb=>cb.getAttribute("data-mc"));
+  state.myCards = {
+    people: grab(myPeople),
+    items:  grab(myItems),
+    rooms:  grab(myRooms)
+  };
+  renderAll();
+  closeMyCards();
+}
+
 }
 
 function computeSolved(section){
@@ -788,12 +953,27 @@ function renderSection(section, solved){
 
   let html = `<table><tbody>`;
   rows.forEach((name, rIdx)=>{
+    let hasCheck = false;
+    for(let p=0; p<active; p++){
+      if(state.marks[section][rIdx][p] === 2){ hasCheck = true; break; }
+    }
+    if(hasCheck){
+      for(let p=0; p<active; p++){
+        if(state.marks[section][rIdx][p] !== 2){
+          state.marks[section][rIdx][p] = 1;
+        }
+      }
+    }
+
     const isFound = (solvedMain !== null && solvedMain === rIdx);
     const grey = (solvedMain !== null && solvedMain !== rIdx) ? " greyOther" : "";
-    const trCls = (isFound ? "foundRow" : "") + grey;
+    const ownedCls = hasCheck ? " ownedRow" : "";
+    const trCls = (isFound ? "foundRow" : "") + grey + ownedCls;
+
+    const nameCls = "nameText" + (hasCheck ? " owned" : "");
 
     html += `<tr class="${trCls.trim()}">`;
-    html += `<td><div class="rowLabel"><span>${escapeHtml(name)}</span>${isFound?`<span class="pill solved">SOLVED</span>`:""}</div></td>`;
+    html += `<td><div class="rowLabel"><span class="${nameCls}">${escapeHtml(name)}</span>${isFound?`<span class="pill solved">SOLVED</span>`:""}${hasCheck?`<span class="pill">OWNED</span>`:""}</div></td>`;
 
     for(let pIdx=0;pIdx<5;pIdx++){
       const disabled = pIdx>=active;
@@ -923,6 +1103,7 @@ function renderAll(){
   tabItems.innerHTML  = renderSection("items",  solved.items);
   tabRooms.innerHTML  = renderSection("rooms",  solved.rooms);
 
+  renderTray();
   save();
 }
 
@@ -983,10 +1164,14 @@ document.addEventListener("click", (e)=>{
   }
 
   if(btn.id === "btnGuess"){ openGuess(); return; }
+  if(btn.id === "btnMyCards"){ openMyCards(); return; }
   if(btn.id === "btnApplyGuess"){ applyGuess(); return; }
   if(btn.id === "btnClearGuess"){ clearGuess(); return; }
   if(btn.id === "closeGuess"){ closeGuess(); return; }
   if(btn.id === "closeShown"){ closeShown(); return; }
+  if(btn.id === "closeMyCards"){ closeMyCards(); return; }
+  if(btn.id === "btnSaveMyCards"){ saveMyCards(); return; }
+  if(btn.id === "btnClearMyCards"){ clearMyCards(); return; }
   if(btn.id === "btnConfirmShown"){ confirmShown(); return; }
   if(btn.id === "btnUnknownShown"){ unknownShown(); return; }
 
@@ -1002,6 +1187,7 @@ document.addEventListener("click", (e)=>{
 /** Overlay background clicks */
 overlayGuess.addEventListener("click", (e)=>{ if(e.target === overlayGuess) closeGuess(); });
 overlayShown.addEventListener("click", (e)=>{ if(e.target === overlayShown) closeShown(); });
+overlayMyCards.addEventListener("click", (e)=>{ if(e.target === overlayMyCards) closeMyCards(); });
 
 /** Popup buttons */
 document.getElementById("popX").addEventListener("click", ()=>setCell(1));
