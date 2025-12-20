@@ -1,0 +1,20 @@
+{
+  "name": "Clue Sheet",
+  "short_name": "Clue Sheet",
+  "start_url": "./clue-sheet.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2f5ea8",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
