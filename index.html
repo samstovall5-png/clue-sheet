@@ -86,25 +86,33 @@
     td:first-child{width:32%;}
     .phCell{font-size:11px;}
   }
-/* Mobile: stack card name and ALL status pills vertically */
 @media (max-width: 520px){
-  .rowLabel{
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
 
-  .rowLabel .pill{
-    display: inline-block;
-    margin: 0;
-    font-size: 9px;
-    padding: 2px 7px;
+  /* Stack name + ALL pills vertically */
+  .rowLabel{
+    display: block !important;
   }
 
   .rowLabel .nameText{
-    line-height: 1.15;
+    display: block !important;
+    margin-bottom: 4px;
+  }
+
+  /* Force ALL pills under the name */
+  .rowLabel .pill{
+    display: inline-block !important;
+    margin: 3px 4px 0 0 !important;
+    font-size: 9px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  /* Prevent first column from expanding */
+  td:first-child{
+    width: 34% !important;
   }
 }
+
 
 
 </style>
