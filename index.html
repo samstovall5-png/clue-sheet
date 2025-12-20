@@ -37,9 +37,26 @@
   td:first-child{width:30%; padding-left:12px; background:#f8fbff;}
   .rowLabel{display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:1000; color:var(--blue);}
 
-  /* 2-line label layout (prevents OWNED/MY CARD from pushing the grid on mobile) */
-  .rowLabel2{display:flex; flex-direction:column; gap:6px;}
-  .rowMeta{display:flex; flex-wrap:wrap; gap:6px;}
+  /* Label states (no pills on mobile/desktop) */
+  tr.dimRow{opacity:.45;}
+  tr.dimRow td{background:#f3f5f7;}
+  tr.dimRow td:first-child{background:#eef1f5;}
+
+  .nameText{display:inline-block;}
+  .nameText.mine{
+    background:rgba(255, 214, 0, .28); /* yellow highlight */
+    border:1px solid rgba(176,122,0,.35);
+    border-radius:8px;
+    padding:1px 6px;
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+  .nameText.ownedOther{
+    color:var(--bad);
+  }
+  .nameText.solved{
+    color:var(--good);
+  }
 
   /* Row status styling (mobile-safe, no extra labels) */
   tr.mineRow{opacity:.60;}
@@ -55,13 +72,6 @@
 
   tr.dimSolvedRow{opacity:.35;}
   tr.dimSolvedRow td:first-child{background:#f3f5f7;}
-
-
-  .rowLabel .nameText.owned{text-decoration:line-through; opacity:.7; color:#5b6f8e;}
-  .pill{font-size:10px; font-weight:1000; color:#5b6f8e; border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:#fff; white-space:nowrap;}
-  .pill.solved{border-color:rgba(31,138,59,.5); background:rgba(31,138,59,.10); color:var(--good);}
-  tr.ownedRow{opacity:.55;}
-  tr.ownedRow td:first-child{background:#FF0000;}
   .cellBtn{width:100%; min-height:28px; border-radius:9px; border:2px solid var(--line); background:#fff; color:var(--text); font-weight:1000; padding:6px 0;}
   .cellBtn.x{background:rgba(177,27,27,.08); border-color:rgba(177,27,27,.35); color:var(--bad);}
   .cellBtn.check{background:rgba(31,138,59,.10); border-color:rgba(31,138,59,.35); color:var(--good);}
