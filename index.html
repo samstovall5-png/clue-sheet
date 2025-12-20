@@ -41,6 +41,22 @@
   .rowLabel2{display:flex; flex-direction:column; gap:6px;}
   .rowMeta{display:flex; flex-wrap:wrap; gap:6px;}
 
+  /* Row status styling (mobile-safe, no extra labels) */
+  tr.mineRow{opacity:.60;}
+  tr.mineRow td:first-child{background:rgba(255,215,0,.20);}
+  tr.mineRow .nameText{text-decoration:line-through; color:#7a6a00;}
+
+  tr.ownedOtherRow{opacity:.55;}
+  tr.ownedOtherRow td:first-child{background:rgba(177,27,27,.10);}
+  tr.ownedOtherRow .nameText{text-decoration:line-through; color:var(--bad);}
+
+  tr.solvedRow td:first-child{background:rgba(31,138,59,.12);}
+  tr.solvedRow .nameText{color:var(--good);}
+
+  tr.dimSolvedRow{opacity:.35;}
+  tr.dimSolvedRow td:first-child{background:#f3f5f7;}
+
+
   .rowLabel .nameText.owned{text-decoration:line-through; opacity:.7; color:#5b6f8e;}
   .pill{font-size:10px; font-weight:1000; color:#5b6f8e; border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:#fff; white-space:nowrap;}
   .pill.solved{border-color:rgba(31,138,59,.5); background:rgba(31,138,59,.10); color:var(--good);}
@@ -400,19 +416,24 @@
       const owned=mine||hasCheck;
       const isFound=solvedMain===r;
 
-      h+=`<tr class="${owned?"ownedRow":""}">`;
-      h+=`<td>
-        <div class="rowLabel2">
-          <div class="rowName"><span class="nameText ${owned?"owned":""}">${esc(name)}</span></div>
-          <div class="rowMeta">`+
-          (isFound?`<span class="pill solved">SOLVED</span>`:"")+
-          (owned?`<span class="pill">${mine?"MY CARD":"OWNED"}</span>`:"")+
-          `</div>
-        </div>
-      </td>`;
+      const otherOwned = hasCheck && !mine;
+      const hasSolved = solvedMain!==null;
+      const dimSolvedOthers = hasSolved && !isFound;
+
+      let rowCls = "";
+      if(mine) rowCls = "mineRow";
+      else if(otherOwned) rowCls = "ownedOtherRow";
+      if(isFound) rowCls = (rowCls ? rowCls+" " : "") + "solvedRow";
+      if(dimSolvedOthers) rowCls = (rowCls ? rowCls+" " : "") + "dimSolvedRow";
+
+      const rowDisabled = mine || otherOwned || dimSolvedOthers;
+
+      h+=`<tr class="${rowCls}">`;
+      // label cell (no extra OWNED/MY CARD text — just color/row styling)
+      h+=`<td><div class="rowLabel2"><div class="rowName"><span class="nameText">${esc(name)}</span></div></div></td>`;
 
       for(let p=0;p<5;p++){
-        const disabled=p>=state.activePlayers;
+        const disabled=(p>=state.activePlayers) || rowDisabled;
         const v=state.marks[sec][r][p]||0;
         h+=`<td><button class="cellBtn ${markClass(v)}" ${disabled?"disabled":""} data-sec="${sec}" data-row="${r}" data-player="${p}">${markToText(v)}</button></td>`;
       }
