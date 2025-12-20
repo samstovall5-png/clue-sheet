@@ -1,6 +1,6 @@
 {
-  "name": "Clue Sheet",
-  "short_name": "Clue Sheet",
+  "name": "Detective Notes",
+  "short_name": "Detective Notes",
   "start_url": "./clue-sheet.html",
   "display": "standalone",
   "background_color": "#ffffff",
