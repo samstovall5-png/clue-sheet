@@ -86,7 +86,7 @@
     td:first-child{width:32%;}
     .phCell{font-size:11px;}
   }
-  /* Mobile: put OWNED / MY CARD under the card name so it doesn't push the grid */
+/* Mobile: stack card name and ALL status pills vertically */
 @media (max-width: 520px){
   .rowLabel{
     flex-direction: column;
@@ -96,9 +96,16 @@
 
   .rowLabel .pill{
     display: inline-block;
-    margin-left: 0;
+    margin: 0;
+    font-size: 9px;
+    padding: 2px 7px;
+  }
+
+  .rowLabel .nameText{
+    line-height: 1.15;
   }
 }
+
 
 </style>
 </head>
