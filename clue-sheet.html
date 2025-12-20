@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Clue Sheet (Digital)</title>
+  <title>Detective Notes</title>
 
   <!-- PWA -->
   <link rel="manifest" href="./manifest.webmanifest">
@@ -22,21 +22,27 @@
       --warn:#c08a00;
       --good:#167a2e;
       --shadow: 0 10px 26px rgba(20,60,120,.15);
+      --tabH:44px;
+      --topbarH:62px;
+      --playerH:44px;
     }
     *{box-sizing:border-box}
+    html, body{height:100%}
     body{
       margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background: linear-gradient(180deg, #f7fbff, #eef5ff 55%, #f7fbff);
       color:var(--text);
+      overflow:hidden; /* no page scroll */
     }
 
     /* Top bar */
     header{
-      position:sticky; top:0; z-index:10;
+      position:fixed; top:0; left:0; right:0; z-index:20;
+      height:var(--topbarH);
       background:linear-gradient(180deg, var(--blue2), var(--blue));
       color:white;
       border-bottom:2px solid #244e8a;
-      padding:12px 14px;
+      padding:10px 12px;
       display:flex; gap:10px; align-items:center; justify-content:space-between;
     }
     header .title{font-weight:900; letter-spacing:.3px}
@@ -64,50 +70,165 @@
       border-color: rgba(255,255,255,.65);
     }
 
-    main{padding:14px; max-width:1100px; margin:0 auto}
+    /* App layout (no page scroll) */
+    main{
+      position:fixed;
+      top:var(--topbarH);
+      left:0; right:0; bottom:0;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      overflow:hidden;
+    }
 
     .banner{
       display:none;
       border:2px solid #2f7a3a;
       background:#eaf7ee;
-      padding:12px 14px;
+      padding:10px 12px;
       border-radius:14px;
-      margin:10px 0 14px 0;
       box-shadow: var(--shadow);
       color:var(--text);
+      flex:0 0 auto;
     }
     .banner strong{color:var(--good)}
 
-    .gridWrap{
+    .card{
       border:2px solid var(--line);
       border-radius:10px;
       overflow:hidden;
       background:var(--paper);
       box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      flex:1 1 auto;
     }
 
-    .sectionHead{
-      padding:10px 12px;
-      display:flex; align-items:center; justify-content:space-between;
+    /* Guess panel */
+    .guessBar{
+      padding:10px 10px;
       border-bottom:2px solid var(--line);
       background:linear-gradient(180deg, var(--blue3), #f5f9ff);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      flex:0 0 auto;
     }
-    .sectionHead h2{
-      margin:0;
-      font-size:16px;
+    .gField{
+      display:flex; flex-direction:column; gap:4px;
+      min-width:150px;
+      flex: 1 1 160px;
+    }
+    .gField label{
+      font-size:11px; font-weight:900; color:var(--muted);
       letter-spacing:.2px;
+    }
+    select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:10px;
+      border:2px solid var(--line);
+      background:white;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+      font-weight:800;
+    }
+    .gActions{
+      display:flex; gap:8px; flex-wrap:wrap;
+      align-items:flex-end;
+    }
+    .gActions button{
       color:var(--blue);
+      background:white;
+      border:2px solid var(--line);
       font-weight:900;
     }
-    .sectionHead .hint{color:var(--muted); font-size:12px; font-weight:700}
+    .gActions button:hover{background:#f4f8ff}
+    .gActions button.primary{border-color:var(--blue)}
+    .gActions button.danger{border-color:#d83a3a; color:#d83a3a}
 
-    .table{
+    /* Tabs */
+    .tabs{
+      display:flex;
+      gap:6px;
+      padding:8px;
+      border-bottom:2px solid var(--line);
+      background:white;
+      flex:0 0 auto;
+    }
+    .tab{
+      flex:1 1 0;
+      height:var(--tabH);
+      border-radius:10px;
+      border:2px solid var(--line);
+      background:white;
+      color:var(--blue);
+      font-weight:900;
+      cursor:pointer;
+    }
+    .tab.active{
+      background:linear-gradient(180deg, var(--blue2), var(--blue));
+      border-color:#244e8a;
+      color:white;
+    }
+
+    /* Single player header row */
+    .playerHeader{
+      display:grid;
+      grid-template-columns: 34% repeat(5, 1fr);
+      align-items:stretch;
+      border-bottom:2px solid var(--line);
+      background:linear-gradient(180deg, #d2e4ff, #f0f6ff);
+      height:var(--playerH);
+      flex:0 0 auto;
+    }
+    .phCell{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
+      color:var(--blue);
+      border-right:1px solid var(--line);
+      padding:0 6px;
+      text-align:center;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .phCell:first-child{
+      justify-content:flex-start;
+      padding-left:12px;
+      background:#f6faff;
+      color:var(--blue);
+      font-size:12px;
+      letter-spacing:.35px;
+    }
+    .phCell:last-child{border-right:none}
+    .phCell.disabled{
+      background:#f0f0f0;
+      color:#9aa6b7;
+    }
+
+    /* Scroll inside sheet only */
+    .sheet{
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      flex:1 1 auto;
+      min-height:0;
+    }
+
+    table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
       table-layout:fixed;
     }
-    th, td{
+    td{
       border-bottom:1px solid var(--line);
       border-right:1px solid var(--line);
       padding:10px 8px;
@@ -115,40 +236,33 @@
       font-size:14px;
       background:white;
     }
-    th:last-child, td:last-child{border-right:none}
-    th:first-child, td:first-child{
+    td:last-child{border-right:none}
+    td:first-child{
       text-align:left;
       padding-left:12px;
       width:34%;
-      font-weight:800;
+      font-weight:900;
       color:var(--blue);
       background:#f6faff;
     }
 
-    th{
-      position:sticky; top:64px; z-index:5;
-      background:linear-gradient(180deg, #d2e4ff, #f0f6ff);
-      font-size:12px;
-      color:var(--blue);
-      font-weight:900;
-      letter-spacing:.35px;
-      border-bottom:2px solid var(--line);
-    }
-
-    tr:last-child td{border-bottom:none}
-
-    .nameCell{
-      display:flex; align-items:center; gap:10px; justify-content:space-between;
+    .rowLabel{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     .pill{
       font-size:11px;
-      padding:4px 8px;
+      padding:3px 8px;
       border-radius:999px;
       border:1px solid var(--line);
       color:var(--muted);
-      white-space:nowrap;
       background:white;
       font-weight:900;
+      white-space:nowrap;
+    }
+    .pill.solved{
+      border-color:#2f7a3a;
+      color:var(--good);
+      background:#eaf7ee;
     }
 
     .cellBtn{
@@ -162,14 +276,13 @@
       font-weight:900;
       letter-spacing:.4px;
       user-select:none;
+      min-height:40px;
     }
     .cellBtn:hover{background:#f4f8ff}
-
     .markX{color:var(--danger); border-color:#f0b2b2; background:#fff4f4}
     .markC{color:var(--good); border-color:#b7e1c1; background:#f0fbf3}
     .markQ{color:var(--warn); border-color:#f0d7a0; background:#fff9ea}
 
-    /* Unused player columns */
     .colDisabled{
       background:#f0f0f0 !important;
       color:#9aa6b7;
@@ -182,24 +295,12 @@
     }
     .colDisabled .cellBtn:hover{background:#f0f0f0}
 
-    /* Killer found highlighting (People section) */
-    .foundRow td:first-child{
-      outline:3px solid var(--good);
-      outline-offset:-6px;
-      border-radius:10px;
-      background:#f0fbf3;
-    }
-    .foundRow td:first-child .pill{
-      border-color:#2f7a3a;
-      color:var(--good);
-      background:#eaf7ee;
-    }
-    .greyOther{
-      opacity:.45;
-      filter:saturate(.65);
-    }
+    /* Solved highlighting per section */
+    tr.greyOther{opacity:.45; filter:saturate(.65);}
+    tr.foundRow td:first-child{background:#f0fbf3;}
+    tr.foundRow td:first-child .pill{border-color:#2f7a3a;color:var(--good);background:#eaf7ee;}
 
-    /* Modal */
+    /* Modals / popups */
     .overlay{
       position:fixed; inset:0; background:rgba(22,50,95,.35);
       display:none; align-items:center; justify-content:center;
@@ -215,6 +316,7 @@
     }
     .modal header{
       position:unset;
+      height:auto;
       background:linear-gradient(180deg, var(--blue2), var(--blue));
       border-bottom:2px solid #244e8a;
     }
@@ -233,7 +335,7 @@
       padding:12px;
     }
     label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:900}
-    input, textarea, select{
+    input, textarea{
       width:100%;
       padding:10px 10px;
       border-radius:10px;
@@ -260,7 +362,6 @@
     .modalFoot button.primary{border-color:var(--blue); color:var(--blue)}
     .modalFoot button.danger{border-color:#d83a3a; color:#d83a3a}
 
-    /* Cell Edit Popup */
     .popup{
       position:fixed; inset:0;
       display:none; align-items:flex-end; justify-content:center;
@@ -289,7 +390,6 @@
       background:white;
       border:2px solid var(--line);
     }
-
     .popupBtns{
       display:grid; grid-template-columns:repeat(2, 1fr);
       gap:10px; padding:14px;
@@ -305,7 +405,6 @@
     .bigX{color:var(--danger); border-color:#f0b2b2; background:#fff4f4}
     .bigC{color:var(--good); border-color:#b7e1c1; background:#f0fbf3}
     .bigQ{color:var(--warn); border-color:#f0d7a0; background:#fff9ea}
-    .bigClr{color:var(--blue)}
     .popupFoot{
       padding:12px 14px; border-top:2px solid var(--line);
       display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;
@@ -320,8 +419,9 @@
     .popupFoot button:hover{background:#f4f8ff}
 
     @media (max-width:520px){
-      th:first-child, td:first-child{width:44%}
+      :root{ --topbarH: 58px; }
       header .sub{display:none}
+      .gField{min-width:120px}
     }
   </style>
 </head>
@@ -329,7 +429,7 @@
   <header>
     <div class="left">
       <div class="title">Detective Notes</div>
-      <div class="sub">Tap a box → choose ❌ / ✅ / ❓. Unused player columns turn grey.</div>
+      <div class="sub">Make a guess, record who showed a card, and solve WHO/WHAT/WHERE.</div>
     </div>
     <div class="right">
       <button class="primary" id="btnSetup">Players</button>
@@ -339,18 +439,52 @@
   </header>
 
   <main>
-    <div class="banner" id="banner">
-      <div><strong>✅ You have discovered the killer based on your answers.</strong></div>
-      <div style="color:var(--muted); font-size:12px; margin-top:4px;">
-        (A person row became ❌ for all active players.)
+    <div class="banner" id="banner"></div>
+
+    <div class="card">
+      <!-- Guess panel -->
+      <div class="guessBar">
+        <div class="gField">
+          <label>WHO?</label>
+          <select id="selGuessWho"></select>
+        </div>
+        <div class="gField">
+          <label>WHAT?</label>
+          <select id="selGuessWhat"></select>
+        </div>
+        <div class="gField">
+          <label>WHERE?</label>
+          <select id="selGuessWhere"></select>
+        </div>
+        <div class="gField" style="flex:1 1 220px; min-width:200px">
+          <label>Who showed a card?</label>
+          <select id="selResponder"></select>
+          <div style="font-size:11px; color:var(--muted); font-weight:800; margin-top:4px;">
+            Choose a player, or “No one (solution)”.
+          </div>
+        </div>
+        <div class="gActions">
+          <button class="primary" id="btnApplyGuess">Apply</button>
+          <button class="danger" id="btnClearGuess">Clear</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="people">WHO?</button>
+        <button class="tab" data-tab="items">WHAT?</button>
+        <button class="tab" data-tab="rooms">WHERE?</button>
+      </div>
+
+      <!-- only ONE players header -->
+      <div class="playerHeader" id="playerHeader"></div>
+
+      <div class="sheet">
+        <div id="tab-people"></div>
+        <div id="tab-items" style="display:none"></div>
+        <div id="tab-rooms" style="display:none"></div>
       </div>
     </div>
-
-    <div class="gridWrap" id="wrapPeople"></div>
-    <div style="height:14px"></div>
-    <div class="gridWrap" id="wrapItems"></div>
-    <div style="height:14px"></div>
-    <div class="gridWrap" id="wrapRooms"></div>
   </main>
 
   <!-- Setup Modal -->
@@ -375,9 +509,6 @@
               <option value="4">4</option>
               <option value="5" selected>5</option>
             </select>
-            <div style="color:var(--muted); font-size:12px; margin-top:8px; font-weight:700">
-              Unused player slots will be greyed out.
-            </div>
           </div>
 
           <div class="field">
@@ -406,7 +537,7 @@
       <header>
         <div class="left">
           <div class="title">Lists</div>
-          <div class="sub">One name per line (People / Items / Rooms).</div>
+          <div class="sub">One name per line (WHO / WHAT / WHERE).</div>
         </div>
         <div class="right">
           <button id="closeLists">Close</button>
@@ -451,7 +582,7 @@
         <button class="bigBtn bigX" id="popX">❌ X</button>
         <button class="bigBtn bigC" id="popC">✅ Check</button>
         <button class="bigBtn bigQ" id="popQ">❓ Question</button>
-        <button class="bigBtn bigClr" id="popClr">⬜ Clear</button>
+        <button class="bigBtn" id="popClr">⬜ Clear</button>
       </div>
 
       <div class="popupFoot">
@@ -462,38 +593,33 @@
   </div>
 
 <script>
-/** ====== PWA: register offline service worker ====== */
+/** PWA */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch(()=>{});
   });
 }
 
-/** ====== Storage ====== */
-const KEY = "digital_clue_sheet_v1";
-
+/** Storage */
+const KEY = "digital_clue_sheet_v3_blue_guess";
 const defaultState = () => ({
-  activePlayers: 5, // 2..5
-  players: ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"],
+  activePlayers: 5,
+  players: ["Player 1","Player 2","Player 3","Player 4","Player 5"],
   lists: {
     people: ["Green","Mustard","Orchid","Peacock","Plum","Scarlett"],
     items: ["Candlestick","Dagger","Lead Pipe","Revolver","Rope","Wrench"],
     rooms: ["Ballroom","Billiard Room","Conservatory","Dining Room","Hall","Kitchen","Library","Lounge","Study"]
   },
-  // marks[section][rowIndex][playerIndex] = 0 blank, 1 X, 2 check, 3 ?
-  marks: { people: [], items: [], rooms: [] },
-  found: { peopleIndex: null }
+  marks: { people: [], items: [], rooms: [] }
 });
 
+function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return defaultState();
-    const obj = JSON.parse(raw);
-    return sanitize(obj);
-  }catch(e){
-    return defaultState();
-  }
+    return sanitize(JSON.parse(raw));
+  }catch(e){ return defaultState(); }
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
@@ -511,17 +637,13 @@ function sanitize(obj){
     }
     if(obj.marks && typeof obj.marks==="object") s.marks = obj.marks;
   }
-  ensureMarksShape(s, "people");
-  ensureMarksShape(s, "items");
-  ensureMarksShape(s, "rooms");
-  s.found.peopleIndex = null;
+  ensureMarksShape(s,"people"); ensureMarksShape(s,"items"); ensureMarksShape(s,"rooms");
   return s;
 }
 
-function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
-
 let state = load();
 
+/** Marks */
 function ensureMarksShape(st, section){
   const rows = st.lists[section].length;
   if(!Array.isArray(st.marks[section])) st.marks[section] = [];
@@ -534,140 +656,217 @@ function ensureMarksShape(st, section){
   }
   st.marks[section] = st.marks[section].slice(0, rows);
 }
-
-function markToText(v){
-  if(v===1) return "X";
-  if(v===2) return "✓";
-  if(v===3) return "?";
-  return "";
-}
-function markClass(v){
-  if(v===1) return "markX";
-  if(v===2) return "markC";
-  if(v===3) return "markQ";
-  return "";
+function markToText(v){ return v===1?"X":(v===2?"✓":(v===3?"?":"")); }
+function markClass(v){ return v===1?"markX":(v===2?"markC":(v===3?"markQ":"")); }
+function escapeHtml(str){
+  return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 
-const wrapPeople = document.getElementById("wrapPeople");
-const wrapItems  = document.getElementById("wrapItems");
-const wrapRooms  = document.getElementById("wrapRooms");
-const banner     = document.getElementById("banner");
+/** UI refs */
+const banner = document.getElementById("banner");
+const playerHeader = document.getElementById("playerHeader");
+const tabPeople = document.getElementById("tab-people");
+const tabItems  = document.getElementById("tab-items");
+const tabRooms  = document.getElementById("tab-rooms");
+const tabs = Array.from(document.querySelectorAll(".tab"));
 
+const selGuessWho   = document.getElementById("selGuessWho");
+const selGuessWhat  = document.getElementById("selGuessWhat");
+const selGuessWhere = document.getElementById("selGuessWhere");
+const selResponder  = document.getElementById("selResponder");
+
+function renderPlayerHeader(){
+  const active = state.activePlayers;
+  const cells = [];
+  cells.push(`<div class="phCell">PLAYERS</div>`);
+  for(let i=0;i<5;i++){
+    const disabled = i>=active ? " disabled" : "";
+    cells.push(`<div class="phCell${disabled}">${escapeHtml(state.players[i] || ("Player "+(i+1)))}</div>`);
+  }
+  playerHeader.innerHTML = cells.join("");
+}
+
+function computeSolved(section){
+  const active = state.activePlayers;
+  const solved = [];
+  for(let r=0; r<state.lists[section].length; r++){
+    let allX = true;
+    for(let p=0; p<active; p++){
+      if(state.marks[section][r][p] !== 1){ allX = false; break; }
+    }
+    if(allX) solved.push(r);
+  }
+  return solved; // could be 0 or multiple
+}
+
+function updateBanner(solved){
+  const parts = [];
+  if(solved.people.length) parts.push(`WHO: <strong>${escapeHtml(state.lists.people[solved.people[0]])}</strong>`);
+  if(solved.items.length)  parts.push(`WHAT: <strong>${escapeHtml(state.lists.items[solved.items[0]])}</strong>`);
+  if(solved.rooms.length)  parts.push(`WHERE: <strong>${escapeHtml(state.lists.rooms[solved.rooms[0]])}</strong>`);
+
+  if(parts.length === 0){
+    banner.style.display = "none";
+    banner.innerHTML = "";
+    return;
+  }
+
+  banner.style.display = "block";
+  if(parts.length === 3){
+    banner.innerHTML = `<div><strong>✅ Case solved!</strong> ${parts.join(" • ")}</div>
+      <div style="color:var(--muted); font-size:12px; margin-top:4px;">
+        (Each solved row is X for all active players.)
+      </div>`;
+  }else{
+    banner.innerHTML = `<div><strong>✅ Discovery!</strong> ${parts.join(" • ")}</div>
+      <div style="color:var(--muted); font-size:12px; margin-top:4px;">
+        (A row became X for all active players.)
+      </div>`;
+  }
+}
+
+function renderSection(section, solved){
+  const rows = state.lists[section];
+  const active = state.activePlayers;
+
+  // If exactly one solved row exists in this section, grey others (like you wanted originally)
+  const solvedMain = (solved.length === 1) ? solved[0] : null;
+
+  let html = `<table><tbody>`;
+  rows.forEach((name, rIdx)=>{
+    const isFound = (solvedMain !== null && solvedMain === rIdx);
+    const grey = (solvedMain !== null && solvedMain !== rIdx) ? " greyOther" : "";
+    const trCls = (isFound ? "foundRow" : "") + grey;
+
+    html += `<tr class="${trCls.trim()}">`;
+    html += `<td><div class="rowLabel"><span>${escapeHtml(name)}</span>${isFound?`<span class="pill solved">SOLVED</span>`:""}</div></td>`;
+
+    for(let pIdx=0;pIdx<5;pIdx++){
+      const disabled = pIdx>=active;
+      const v = state.marks[section][rIdx][pIdx];
+      const tdCls = disabled ? "colDisabled" : "";
+      const disAttr = disabled ? "disabled" : "";
+      html += `<td class="${tdCls}">
+        <button class="cellBtn ${markClass(v)}" ${disAttr}
+          data-section="${section}" data-row="${rIdx}" data-player="${pIdx}">
+          ${markToText(v)}
+        </button>
+      </td>`;
+    }
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  return html;
+}
+
+function fillSelectOptions(selectEl, items){
+  const prev = selectEl.value;
+  selectEl.innerHTML = items.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  // try to keep selection
+  if(items.includes(prev)) selectEl.value = prev;
+}
+
+function renderGuessPanel(){
+  fillSelectOptions(selGuessWho, state.lists.people);
+  fillSelectOptions(selGuessWhat, state.lists.items);
+  fillSelectOptions(selGuessWhere, state.lists.rooms);
+
+  const active = state.activePlayers;
+  let opts = `<option value="none">No one (solution)</option>`;
+  for(let i=0;i<active;i++){
+    opts += `<option value="${i}">${escapeHtml(state.players[i])}</option>`;
+  }
+  selResponder.innerHTML = opts;
+  if(!selResponder.value) selResponder.value = "none";
+}
+
+function applyGuess(){
+  const who = selGuessWho.value;
+  const what = selGuessWhat.value;
+  const where = selGuessWhere.value;
+  const resp = selResponder.value; // "none" or player index string
+
+  // Convert names to row indexes
+  const whoIdx = state.lists.people.indexOf(who);
+  const whatIdx = state.lists.items.indexOf(what);
+  const whereIdx = state.lists.rooms.indexOf(where);
+
+  if(whoIdx < 0 || whatIdx < 0 || whereIdx < 0) return;
+
+  if(resp === "none"){
+    // No one could show => they are in the solution:
+    // mark X for ALL active players for these rows (all categories)
+    for(const sec of ["people","items","rooms"]){
+      const idx = (sec==="people")?whoIdx : (sec==="items")?whatIdx : whereIdx;
+      for(let p=0;p<state.activePlayers;p++){
+        state.marks[sec][idx][p] = 1;
+      }
+    }
+  }else{
+    const p = Number(resp);
+    // That player had ONE of the 3. We don't know which, so:
+    // mark "?" for those 3 at that player (unless already X or ✓).
+    const setQ = (sec, idx) => {
+      const cur = state.marks[sec][idx][p];
+      if(cur === 0) state.marks[sec][idx][p] = 3; // only set if blank
+    };
+    setQ("people", whoIdx);
+    setQ("items",  whatIdx);
+    setQ("rooms",  whereIdx);
+  }
+
+  renderAll();
+}
+
+function clearGuess(){
+  selResponder.value = "none";
+}
+
+/** Main render */
 function renderAll(){
-  ensureMarksShape(state,"people");
-  ensureMarksShape(state,"items");
-  ensureMarksShape(state,"rooms");
-  computeFoundKiller();
+  ensureMarksShape(state,"people"); ensureMarksShape(state,"items"); ensureMarksShape(state,"rooms");
 
-  banner.style.display = (state.found.peopleIndex !== null) ? "block" : "none";
+  const solved = {
+    people: computeSolved("people"),
+    items:  computeSolved("items"),
+    rooms:  computeSolved("rooms")
+  };
 
-  wrapPeople.innerHTML = renderSection("people", "WHO?", "Mark X when a player can’t have that person.");
-  wrapItems.innerHTML  = renderSection("items",  "WHAT?", "Use ✓ if you know a player has it.");
-  wrapRooms.innerHTML  = renderSection("rooms",  "WHERE?", "Use ? if you’re unsure.");
+  updateBanner(solved);
+
+  renderPlayerHeader();
+  renderGuessPanel();
+
+  tabPeople.innerHTML = renderSection("people", solved.people);
+  tabItems.innerHTML  = renderSection("items",  solved.items);
+  tabRooms.innerHTML  = renderSection("rooms",  solved.rooms);
 
   save();
 }
 
-function renderSection(section, title, hint){
-  const rows = state.lists[section];
-  const active = state.activePlayers;
-  const foundIdx = (section==="people") ? state.found.peopleIndex : null;
-
-  let html = `
-    <div class="sectionHead">
-      <h2>${title}</h2>
-      <div class="hint">${hint}</div>
-    </div>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>PLAYERS</th>
-          ${[0,1,2,3,4].map(i=>{
-            const nm = escapeHtml(state.players[i] || `Player ${i+1}`);
-            const disabled = i >= active ? " colDisabled" : "";
-            return `<th class="${disabled}">${nm}</th>`;
-          }).join("")}
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((rowName, rIdx)=>{
-          const isFound = (foundIdx === rIdx && section==="people");
-          const grey = (foundIdx !== null && section==="people" && foundIdx !== rIdx) ? " greyOther" : "";
-          return `
-            <tr class="${isFound ? "foundRow" : ""}${grey}">
-              <td>
-                <div class="nameCell">
-                  <span>${escapeHtml(rowName)}</span>
-                  ${isFound ? `<span class="pill">SOLVED</span>` : ``}
-                </div>
-              </td>
-              ${[0,1,2,3,4].map(pIdx=>{
-                const disabled = pIdx >= active;
-                const v = state.marks[section][rIdx][pIdx];
-                const cls = disabled ? "colDisabled" : "";
-                const btnCls = "cellBtn " + markClass(v);
-                const disAttr = disabled ? "disabled" : "";
-                return `
-                  <td class="${cls}">
-                    <button class="${btnCls}" ${disAttr}
-                      data-section="${section}" data-row="${rIdx}" data-player="${pIdx}">
-                      ${markToText(v)}
-                    </button>
-                  </td>
-                `;
-              }).join("")}
-            </tr>
-          `;
-        }).join("")}
-      </tbody>
-    </table>
-  `;
-  return html;
+/** Tabs */
+function showTab(which){
+  tabPeople.style.display = (which==="people") ? "block" : "none";
+  tabItems.style.display  = (which==="items")  ? "block" : "none";
+  tabRooms.style.display  = (which==="rooms")  ? "block" : "none";
+  tabs.forEach(t => t.classList.toggle("active", t.dataset.tab===which));
+  document.querySelector(".sheet").scrollTop = 0;
 }
 
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function computeFoundKiller(){
-  const active = state.activePlayers;
-  state.found.peopleIndex = null;
-
-  for(let r=0; r<state.lists.people.length; r++){
-    let allX = true;
-    for(let p=0; p<active; p++){
-      if(state.marks.people[r][p] !== 1){
-        allX = false; break;
-      }
-    }
-    if(allX){
-      state.found.peopleIndex = r;
-      break;
-    }
-  }
-}
-
-/* Popup */
+/** Cell popup */
 const popup = document.getElementById("popup");
 const popTitle = document.getElementById("popTitle");
 const popSub = document.getElementById("popSub");
 let currentCell = null;
 
 function openPopup(section,row,player){
-  const rowName = state.lists[section][row];
-  const playerName = state.players[player];
   currentCell = {section,row,player};
-  popTitle.textContent = `${rowName}`;
-  popSub.textContent = `Mark for: ${playerName} (${section.toUpperCase()})`;
+  popTitle.textContent = state.lists[section][row];
+  popSub.textContent = "Mark for: " + state.players[player] + " (" + section.toUpperCase() + ")";
   popup.style.display = "flex";
 }
-function closePopup(){ popup.style.display = "none"; currentCell = null; }
-
+function closePopup(){ popup.style.display="none"; currentCell=null; }
 function setCell(value){
   if(!currentCell) return;
   const {section,row,player} = currentCell;
@@ -678,14 +877,23 @@ function setCell(value){
 function clearRow(){
   if(!currentCell) return;
   const {section,row} = currentCell;
-  for(let p=0;p<5;p++) state.marks[section][row][p] = 0;
+  for(let p=0;p<5;p++) state.marks[section][row][p]=0;
   closePopup();
   renderAll();
 }
 
+/** Global clicks */
 document.addEventListener("click", (e)=>{
   const btn = e.target.closest("button");
   if(!btn) return;
+
+  if(btn.classList.contains("tab")){
+    showTab(btn.dataset.tab);
+    return;
+  }
+
+  if(btn.id === "btnApplyGuess"){ applyGuess(); return; }
+  if(btn.id === "btnClearGuess"){ clearGuess(); return; }
 
   if(btn.dataset && btn.dataset.section){
     const section = btn.dataset.section;
@@ -696,6 +904,7 @@ document.addEventListener("click", (e)=>{
   }
 });
 
+/** Popup buttons */
 document.getElementById("popX").addEventListener("click", ()=>setCell(1));
 document.getElementById("popC").addEventListener("click", ()=>setCell(2));
 document.getElementById("popQ").addEventListener("click", ()=>setCell(3));
@@ -705,23 +914,21 @@ document.getElementById("popCancel").addEventListener("click", closePopup);
 document.getElementById("popClose").addEventListener("click", closePopup);
 popup.addEventListener("click", (e)=>{ if(e.target === popup) closePopup(); });
 
-/* Setup modal */
+/** Setup modal */
 const overlaySetup = document.getElementById("overlaySetup");
 document.getElementById("btnSetup").addEventListener("click", ()=>{
   document.getElementById("selActive").value = String(state.activePlayers);
-  ["p1","p2","p3","p4","p5"].forEach((id,i)=>{
-    document.getElementById(id).value = state.players[i] || `Player ${i+1}`;
-  });
-  overlaySetup.style.display = "flex";
+  ["p1","p2","p3","p4","p5"].forEach((id,i)=>{ document.getElementById(id).value = state.players[i] || ("Player "+(i+1)); });
+  overlaySetup.style.display="flex";
 });
 document.getElementById("closeSetup").addEventListener("click", ()=> overlaySetup.style.display="none");
 overlaySetup.addEventListener("click", (e)=>{ if(e.target === overlaySetup) overlaySetup.style.display="none"; });
 
 document.getElementById("btnSaveSetup").addEventListener("click", ()=>{
-  state.activePlayers = clamp(Number(document.getElementById("selActive").value), 2, 5);
+  state.activePlayers = clamp(Number(document.getElementById("selActive").value),2,5);
   state.players = ["p1","p2","p3","p4","p5"].map((id,i)=>{
     const v = document.getElementById(id).value.trim();
-    return v || `Player ${i+1}`;
+    return v || ("Player "+(i+1));
   });
   overlaySetup.style.display="none";
   renderAll();
@@ -729,18 +936,17 @@ document.getElementById("btnSaveSetup").addEventListener("click", ()=>{
 
 document.getElementById("btnClearAll").addEventListener("click", ()=>{
   state = defaultState();
-  save();
   overlaySetup.style.display="none";
   renderAll();
 });
 
-/* Lists modal */
+/** Lists modal */
 const overlayLists = document.getElementById("overlayLists");
 document.getElementById("btnEditLists").addEventListener("click", ()=>{
   document.getElementById("taPeople").value = state.lists.people.join("\n");
   document.getElementById("taItems").value  = state.lists.items.join("\n");
   document.getElementById("taRooms").value  = state.lists.rooms.join("\n");
-  overlayLists.style.display = "flex";
+  overlayLists.style.display="flex";
 });
 document.getElementById("closeLists").addEventListener("click", ()=> overlayLists.style.display="none");
 overlayLists.addEventListener("click", (e)=>{ if(e.target === overlayLists) overlayLists.style.display="none"; });
@@ -754,27 +960,26 @@ document.getElementById("btnSaveLists").addEventListener("click", ()=>{
   if(items.length)  state.lists.items  = items;
   if(rooms.length)  state.lists.rooms  = rooms;
 
-  ensureMarksShape(state,"people");
-  ensureMarksShape(state,"items");
-  ensureMarksShape(state,"rooms");
+  ensureMarksShape(state,"people"); ensureMarksShape(state,"items"); ensureMarksShape(state,"rooms");
 
   overlayLists.style.display="none";
   renderAll();
 });
 
-/* Reset marks */
+/** Reset marks */
 document.getElementById("btnResetMarks").addEventListener("click", ()=>{
   for(const sec of ["people","items","rooms"]){
     ensureMarksShape(state,sec);
-    for(let r=0; r<state.lists[sec].length; r++){
-      for(let p=0; p<5; p++) state.marks[sec][r][p] = 0;
+    for(let r=0;r<state.lists[sec].length;r++){
+      for(let p=0;p<5;p++) state.marks[sec][r][p]=0;
     }
   }
-  state.found.peopleIndex = null;
   renderAll();
 });
 
+/** Init */
 renderAll();
+showTab("people");
 </script>
 </body>
 </html>
