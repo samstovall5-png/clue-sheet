@@ -13,7 +13,7 @@
     --good:#1f8a3b; --warn:#b07a00; --bad:#b11b1b;
   }
   *{box-sizing:border-box; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-  body{margin:0; background:linear-gradient(180deg,var(--blue),var(--blue2)); color:var(--text);}
+  body{margin:0; background:linear-gradient(180deg,var(--blue),var(--blue2) 42%,var(--bg) 42%); color:var(--text);}
   header.top{padding:12px 14px 10px; display:flex; justify-content:space-between; gap:10px; color:#fff; align-items:flex-start;}
   .titleWrap .h1{font-weight:1000; font-size:22px;}
   .btnRow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
@@ -22,10 +22,7 @@
   button.ghost{background:transparent;}
   button.danger{background:rgba(255,255,255,.10);}
   main{padding:10px 10px 16px;}
-  .card{max-width:820px; margin:0 auto; background:var(--panel); border:3px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 16px 40px rgba(10,30,70,.18);; min-height: min(860px, 92vh);
-  display:flex;
-  flex-direction:column
-}
+  .card{max-width:820px; margin:0 auto; background:var(--panel); border:3px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 16px 40px rgba(10,30,70,.18);}
   .tabs{display:flex; gap:10px; padding:10px; background:#f6faff; border-bottom:2px solid var(--line);}
   .tab{flex:1 1 0; height:44px; border-radius:12px; border:2px solid var(--line); background:#fff; color:var(--blue); font-weight:1000; font-size:16px;}
   .tab.active{background:linear-gradient(180deg,#3e73c4,var(--blue2)); color:#fff; border-color:#1c3f74;}
@@ -35,21 +32,46 @@
   .phCell{padding:8px 6px; font-weight:1000; font-size:12px; color:var(--muted); border-right:2px solid var(--line); text-align:center; line-height:1.05;}
   .phCell:first-child{text-align:left; padding-left:12px; color:var(--blue);}
   .phCell.colDisabled{opacity:.4; background:#f3f5f7;}
-  table\{width:100%; border-collapse:collapse;\}
-  .sheet{flex:1 1 auto; min-height:40vh;}
+  table{width:100%; border-collapse:collapse;}
   td{border-right:2px solid var(--line); border-bottom:2px solid var(--line); padding:6px 4px; font-size:13px;}
   td:first-child{width:30%; padding-left:12px; background:#f8fbff;}
   .rowLabel{display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:1000; color:var(--blue);}
 
-  /* 2-line label layout (prevents OWNED/MY CARD from pushing the grid on mobile) */
-  .rowLabel2{display:flex; flex-direction:column; gap:6px;}
-  .rowMeta{display:flex; flex-wrap:wrap; gap:6px;}
+  /* Label states (no pills on mobile/desktop) */
+  tr.dimRow{opacity:.45;}
+  tr.dimRow td{background:#f3f5f7;}
+  tr.dimRow td:first-child{background:#eef1f5;}
 
-  .rowLabel .nameText.owned{text-decoration:line-through; opacity:.7; color:#5b6f8e;}
-  .pill{font-size:10px; font-weight:1000; color:#5b6f8e; border:1px solid var(--line); border-radius:999px; padding:2px 8px; background:#fff; white-space:nowrap;}
-  .pill.solved{border-color:rgba(31,138,59,.5); background:rgba(31,138,59,.10); color:var(--good);}
-  tr.ownedRow{opacity:.55;}
-  tr.ownedRow td:first-child{background:#FF0000;}
+  .nameText{display:inline-block;}
+  .nameText.mine{
+    background:rgba(255, 214, 0, .28); /* yellow highlight */
+    border:1px solid rgba(176,122,0,.35);
+    border-radius:8px;
+    padding:1px 6px;
+    text-decoration:line-through;
+    color:var(--muted);
+  }
+  .nameText.ownedOther{
+    color:var(--bad);
+  }
+  .nameText.solved{
+    color:var(--good);
+  }
+
+  /* Row status styling (mobile-safe, no extra labels) */
+  tr.mineRow{opacity:.60;}
+  tr.mineRow td:first-child{background:rgba(255,215,0,.20);}
+  tr.mineRow .nameText{text-decoration:line-through; color:#7a6a00;}
+
+  tr.ownedOtherRow{opacity:.55;}
+  tr.ownedOtherRow td:first-child{background:rgba(177,27,27,.10);}
+  tr.ownedOtherRow .nameText{text-decoration:line-through; color:var(--bad);}
+
+  tr.solvedRow td:first-child{background:rgba(31,138,59,.12);}
+  tr.solvedRow .nameText{color:var(--good);}
+
+  tr.dimSolvedRow{opacity:.35;}
+  tr.dimSolvedRow td:first-child{background:#f3f5f7;}
   .cellBtn{width:100%; min-height:28px; border-radius:9px; border:2px solid var(--line); background:#fff; color:var(--text); font-weight:1000; padding:6px 0;}
   .cellBtn.x{background:rgba(177,27,27,.08); border-color:rgba(177,27,27,.35); color:var(--bad);}
   .cellBtn.check{background:rgba(31,138,59,.10); border-color:rgba(31,138,59,.35); color:var(--good);}
@@ -113,45 +135,6 @@
     .rowLabel2{gap:4px;}
     .rowMeta{gap:4px;}
   }
-
-
-/* ===== Mobile layout fixes (My Cards modal + overall height) ===== */
-@media (max-width: 600px){
-  main{padding:8px;}
-  .card{max-width: 98vw;}
-  .tabs{gap:8px;}
-  .tab{height:42px; font-size:15px;}
-
-  /* My Cards modal: stack into one column so it doesn't overflow sideways */
-  .choiceGrid{grid-template-columns: 1fr !important;}
-  .choice{
-    padding:8px 10px;
-    border-radius:12px;
-    border-color: var(--line);
-    background: #f7fbff;
-  }
-  .choice input[type="checkbox"]{width:18px;height:18px; flex:0 0 auto;}
-  .choice span[style*="width:56px"]{width:44px !important;}
-  .thumb{border-color: rgba(47,94,168,.45); font-size:10px;}
-  .thumb .cat{font-size:8px;}
-
-  /* Reduce grid header text wrapping */
-  .phCell{font-size:10px; padding:7px 4px;}
-  td{padding:5px 3px;}
-  .cellBtn{min-height:26px;}
-
-  /* Make sure the table area has room so you don't get a tiny sheet at top */
-  .sheet{min-height: 55vh;}
-}
-
-
-@media (max-width: 600px){
-  .modal{width: 100%; border-radius: 16px;}
-  .modal header{padding:10px 12px;}
-  .modal .body{padding:10px 12px;}
-  .foot{padding:10px 12px;}
-  .foot button{padding:10px 12px;}
-}
 
 </style>
 </head>
@@ -443,19 +426,24 @@
       const owned=mine||hasCheck;
       const isFound=solvedMain===r;
 
-      h+=`<tr class="${owned?"ownedRow":""}">`;
-      h+=`<td>
-        <div class="rowLabel2">
-          <div class="rowName"><span class="nameText ${owned?"owned":""}">${esc(name)}</span></div>
-          <div class="rowMeta">`+
-          (isFound?`<span class="pill solved">SOLVED</span>`:"")+
-          (owned?`<span class="pill">${mine?"MY CARD":"OWNED"}</span>`:"")+
-          `</div>
-        </div>
-      </td>`;
+      const otherOwned = hasCheck && !mine;
+      const hasSolved = solvedMain!==null;
+      const dimSolvedOthers = hasSolved && !isFound;
+
+      let rowCls = "";
+      if(mine) rowCls = "mineRow";
+      else if(otherOwned) rowCls = "ownedOtherRow";
+      if(isFound) rowCls = (rowCls ? rowCls+" " : "") + "solvedRow";
+      if(dimSolvedOthers) rowCls = (rowCls ? rowCls+" " : "") + "dimSolvedRow";
+
+      const rowDisabled = mine || otherOwned || dimSolvedOthers;
+
+      h+=`<tr class="${rowCls}">`;
+      // label cell (no extra OWNED/MY CARD text — just color/row styling)
+      h+=`<td><div class="rowLabel2"><div class="rowName"><span class="nameText">${esc(name)}</span></div></div></td>`;
 
       for(let p=0;p<5;p++){
-        const disabled=p>=state.activePlayers;
+        const disabled=(p>=state.activePlayers) || rowDisabled;
         const v=state.marks[sec][r][p]||0;
         h+=`<td><button class="cellBtn ${markClass(v)}" ${disabled?"disabled":""} data-sec="${sec}" data-row="${r}" data-player="${p}">${markToText(v)}</button></td>`;
       }
