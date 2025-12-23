@@ -4,91 +4,239 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Detective Notes</title>
-<link rel="manifest" href="./manifest.webmanifest?v=20251220v4">
+<link rel="manifest" href="./manifest.webmanifest?v=20251222v1">
 <meta name="theme-color" content="#2f5ea8"/>
 <style>
   :root{
-    --blue:#2f5ea8; --blue2:#224b8d; --bg:#eaf2ff; --panel:#fff;
-    --line:#9fb6d8; --text:#12304f; --muted:#567399;
+    --blue:#2f5ea8; --blue2:#224b8d; --blue3:#163a73;
+    --panel:#ffffff; --line:#9fb6d8; --text:#12304f; --muted:#567399;
     --good:#1f8a3b; --warn:#b07a00; --bad:#b11b1b;
   }
   *{box-sizing:border-box; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-  body{margin:0; background:linear-gradient(180deg,var(--blue),var(--blue2) 42%,var(--bg) 42%); color:var(--text);}
-  header.top{padding:12px 14px 10px; display:flex; justify-content:space-between; gap:10px; color:#fff; align-items:flex-start;}
-  .titleWrap .h1{font-weight:1000; font-size:22px;}
+  body{
+    margin:0;
+    color:var(--text);
+    background:
+      radial-gradient(1100px 700px at 25% 10%, rgba(255,255,255,.16), rgba(255,255,255,0) 55%),
+      radial-gradient(900px 650px at 85% 20%, rgba(255,255,255,.10), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, var(--blue) 0%, var(--blue2) 48%, var(--blue3) 100%);
+    min-height:100vh;
+  }
+
+  header.top{
+    padding:12px 14px 10px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    color:#fff;
+    align-items:flex-start;
+  }
+  .titleWrap{display:flex; align-items:center; gap:10px;}
+  .appIcon{
+    width:34px;height:34px;border-radius:10px;
+    background:rgba(255,255,255,.18);
+    border:2px solid rgba(255,255,255,.35);
+    display:grid;place-items:center;
+    font-weight:1000;
+  }
+  .titleWrap .h1{font-weight:1000; font-size:22px; line-height:1.05;}
   .btnRow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
-  button{border:2px solid rgba(255,255,255,.55); background:rgba(255,255,255,.12); color:#fff; font-weight:900; padding:10px 12px; border-radius:12px; cursor:pointer;}
+  button{
+    border:2px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.12);
+    color:#fff; font-weight:900;
+    padding:10px 12px;
+    border-radius:12px;
+    cursor:pointer;
+  }
   button.primary{background:rgba(255,255,255,.18);}
   button.ghost{background:transparent;}
   button.danger{background:rgba(255,255,255,.10);}
+  button:disabled{opacity:.5; cursor:not-allowed;}
+
+  a.btnLink{
+    display:inline-flex; align-items:center; justify-content:center;
+    text-decoration:none;
+    border:2px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.12);
+    color:#fff; font-weight:900;
+    padding:10px 12px;
+    border-radius:12px;
+    cursor:pointer;
+  }
+
   main{padding:10px 10px 16px;}
-  .card{max-width:820px; margin:0 auto; background:var(--panel); border:3px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 16px 40px rgba(10,30,70,.18);}
-  .tabs{display:flex; gap:10px; padding:10px; background:#f6faff; border-bottom:2px solid var(--line);}
-  .tab{flex:1 1 0; height:44px; border-radius:12px; border:2px solid var(--line); background:#fff; color:var(--blue); font-weight:1000; font-size:16px;}
-  .tab.active{background:linear-gradient(180deg,#3e73c4,var(--blue2)); color:#fff; border-color:#1c3f74;}
+  .card{
+    max-width:920px;
+    margin:0 auto;
+    background:var(--panel);
+    border:3px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 16px 40px rgba(10,30,70,.22);
+  }
+
+  .tabs{
+    display:flex; gap:10px; padding:10px;
+    background:#f6faff; border-bottom:2px solid var(--line);
+  }
+  .tab{
+    flex:1 1 0; height:44px; border-radius:12px;
+    border:2px solid var(--line);
+    background:#fff; color:var(--blue);
+    font-weight:1000; font-size:16px;
+  }
+  .tab.active{
+    background:linear-gradient(180deg,#3e73c4,var(--blue2));
+    color:#fff; border-color:#1c3f74;
+  }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:8px;
+    padding:10px 10px 12px;
+    background:#fbfdff;
+    border-bottom:2px solid var(--line);
+    align-items:center;
+  }
+  .legend .tag{
+    display:inline-flex; align-items:center; gap:8px;
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:6px 10px;
+    font-weight:1000;
+    color:var(--muted);
+    background:#fff;
+  }
+  .lgIcon{
+    width:26px; height:22px; border-radius:8px;
+    border:2px solid var(--line);
+    display:grid; place-items:center;
+    font-weight:1000; color:var(--text);
+    background:#fff;
+  }
+  .lgIcon.x{background:rgba(177,27,27,.08); border-color:rgba(177,27,27,.35); color:var(--bad);}
+  .lgIcon.check{background:rgba(31,138,59,.10); border-color:rgba(31,138,59,.35); color:var(--good);}
+  .lgIcon.q{background:rgba(176,122,0,.10); border-color:rgba(176,122,0,.35); color:var(--warn);}
+
   .banner{display:none; margin:10px; border:2px solid rgba(31,138,59,.35); background:rgba(31,138,59,.08); color:var(--good); font-weight:1000; border-radius:14px; padding:10px 12px;}
   #errBox{display:none; margin:10px; border:2px solid rgba(177,27,27,.35); background:rgba(177,27,27,.08); color:var(--bad); font-weight:900; border-radius:14px; padding:10px 12px;}
-  .playerHeader{display:grid; grid-template-columns: 30% repeat(5, 1fr); border-bottom:2px solid var(--line); background:#eef5ff;}
-  .phCell{padding:8px 6px; font-weight:1000; font-size:12px; color:var(--muted); border-right:2px solid var(--line); text-align:center; line-height:1.05;}
-  .phCell:first-child{text-align:left; padding-left:12px; color:var(--blue);}
-  .phCell.colDisabled{opacity:.4; background:#f3f5f7;}
-  table{width:100%; border-collapse:collapse;}
-  td{border-right:2px solid var(--line); border-bottom:2px solid var(--line); padding:6px 4px; font-size:13px;}
-  td:first-child{width:30%; padding-left:12px; background:#f8fbff;}
-  .rowLabel{display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:1000; color:var(--blue);}
 
-  /* Label states (no pills on mobile/desktop) */
-  tr.dimRow{opacity:.45;}
-  tr.dimRow td{background:#f3f5f7;}
-  tr.dimRow td:first-child{background:#eef1f5;}
-
-  .nameText{display:inline-block;}
-  .nameText.mine{
-    background:rgba(255, 214, 0, .28); /* yellow highlight */
-    border:1px solid rgba(176,122,0,.35);
-    border-radius:8px;
-    padding:1px 6px;
-    text-decoration:line-through;
+  .playerHeader{
+    display:grid;
+    grid-template-columns: 32% repeat(4, 1fr);
+    border-bottom:2px solid var(--line);
+    background:#eef5ff;
+  }
+  .phCell{
+    padding:8px 6px;
+    font-weight:1000;
+    font-size:12px;
     color:var(--muted);
+    border-right:2px solid var(--line);
+    text-align:center;
+    line-height:1.05;
   }
-  .nameText.ownedOther{
-    color:var(--bad);
+  .phCell:first-child{
+    text-align:left; padding-left:12px;
+    color:var(--blue);
   }
-  .nameText.solved{
+  .phCell.colDisabled{opacity:.4; background:#f3f5f7;}
+
+  table{width:100%; border-collapse:collapse;}
+  td{
+    border-right:2px solid var(--line);
+    border-bottom:2px solid var(--line);
+    padding:6px 4px;
+    font-size:13px;
+  }
+  td:first-child{width:32%; padding-left:12px; background:#f8fbff;}
+  .rowLabel{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    font-weight:1000; color:var(--blue);
+  }
+  .rowLabel .nameText{line-height:1.15;}
+  .pill{
+    font-size:10px; font-weight:1000;
+    color:#5b6f8e;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:2px 8px;
+    background:#fff;
+    white-space:nowrap;
+  }
+  .pill.solved{
+    border-color:rgba(31,138,59,.5);
+    background:rgba(31,138,59,.10);
     color:var(--good);
   }
 
-  /* Row status styling (mobile-safe, no extra labels) */
-  tr.mineRow{opacity:.60;}
-  tr.mineRow td:first-child{background:rgba(255,215,0,.20);}
-  tr.mineRow .nameText{text-decoration:line-through; color:#7a6a00;}
+  tr.rowMine{opacity:.72;}
+  tr.rowMine td:first-child{background:rgba(255, 230, 120, .35);}
+  tr.rowMine .nameText{color:#7a6a00; text-decoration:line-through;}
+  tr.rowOther{opacity:.58;}
+  tr.rowOther .nameText{color:var(--bad);}
+  tr.rowSolved{opacity:.70;}
+  tr.rowSolved .nameText{color:var(--good);}
+  tr.rowSolved td:first-child{background:rgba(31,138,59,.10);}
 
-  tr.ownedOtherRow{opacity:.55;}
-  tr.ownedOtherRow td:first-child{background:rgba(177,27,27,.10);}
-  tr.ownedOtherRow .nameText{text-decoration:line-through; color:var(--bad);}
-
-  tr.solvedRow td:first-child{background:rgba(31,138,59,.12);}
-  tr.solvedRow .nameText{color:var(--good);}
-
-  tr.dimSolvedRow{opacity:.35;}
-  tr.dimSolvedRow td:first-child{background:#f3f5f7;}
-  .cellBtn{width:100%; min-height:28px; border-radius:9px; border:2px solid var(--line); background:#fff; color:var(--text); font-weight:1000; padding:6px 0;}
+  .cellBtn{
+    width:100%; min-height:28px;
+    border-radius:9px;
+    border:2px solid var(--line);
+    background:#fff; color:var(--text);
+    font-weight:1000;
+    padding:6px 0;
+  }
   .cellBtn.x{background:rgba(177,27,27,.08); border-color:rgba(177,27,27,.35); color:var(--bad);}
   .cellBtn.check{background:rgba(31,138,59,.10); border-color:rgba(31,138,59,.35); color:var(--good);}
   .cellBtn.q{background:rgba(176,122,0,.10); border-color:rgba(176,122,0,.35); color:var(--warn);}
   .cellBtn:disabled{opacity:.35; background:#f3f5f7;}
-  .tray{border-top:2px solid var(--line); padding:10px; background:linear-gradient(180deg,#f6faff,#fff);}
+
+  .tray{
+    border-top:2px solid var(--line);
+    padding:10px;
+    background:linear-gradient(180deg,#f6faff,#fff);
+  }
   .trayTop{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
   .trayTop .t{font-weight:1000; color:var(--blue);}
-  .trayGrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
-  .mini{border:2px solid var(--line); border-radius:14px; padding:8px; background:#fff; box-shadow:0 10px 18px rgba(20,60,120,.08);}
-  .mini .k{font-size:10px; font-weight:1000; color:var(--muted);}
-  .mini .v{font-size:12px; font-weight:1000; color:var(--text); margin-top:2px;}
-  .thumb{margin-top:8px; width:100%; aspect-ratio:3/4; border:2px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#fff,#f6faff); display:flex; align-items:center; justify-content:center; padding:6px; text-align:center; font-weight:1000; color:var(--blue); font-size:11px; position:relative; overflow:hidden;}
-  .thumb .cat{position:absolute; top:6px; left:6px; font-size:9px; font-weight:1000; color:var(--muted); background:#fff; border:1px solid var(--line); border-radius:999px; padding:2px 6px;}
+  .tinyNote{font-size:12px; font-weight:900; color:var(--muted);}
+  .trayGrid{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:8px 10px;
+    background:#fff;
+    font-weight:1000;
+    color:var(--text);
+    display:inline-flex; gap:8px; align-items:center;
+  }
+  .chip .k{
+    font-size:10px;
+    color:var(--muted);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:2px 7px;
+    background:#fbfdff;
+  }
+
   .overlay{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; padding:14px; z-index:50;}
-  .modal{width:min(860px, 100%); max-height:min(92vh, 860px); overflow:auto; background:#fff; border:3px solid var(--line); border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.22);}
-  .modal header{position:sticky; top:0; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:12px 14px; color:#fff; background:linear-gradient(180deg,#3e73c4,var(--blue2)); border-bottom:2px solid rgba(255,255,255,.25);}
+  .modal{
+    width:min(860px, 100%);
+    max-height:min(92vh, 860px);
+    overflow:auto;
+    background:#fff;
+    border:3px solid var(--line);
+    border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,.22);
+  }
+  .modal header{
+    position:sticky; top:0;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+    padding:12px 14px;
+    color:#fff;
+    background:linear-gradient(180deg,#3e73c4,var(--blue2));
+    border-bottom:2px solid rgba(255,255,255,.25);
+  }
   .modal header .h{font-size:18px; font-weight:1000;}
   .modal header .s{font-size:12px; opacity:.9; font-weight:800;}
   .modal header button{padding:8px 10px; border-radius:10px;}
@@ -96,67 +244,135 @@
   .row{display:flex; flex-wrap:wrap; gap:12px;}
   .field{flex:1 1 220px;}
   label{display:block; font-weight:1000; color:var(--muted); font-size:12px; margin-bottom:6px;}
-  input, select, textarea{width:100%; border:2px solid var(--line); border-radius:12px; padding:10px 10px; font-weight:900; font-size:14px; outline:none;}
-  .foot{display:flex; justify-content:flex-end; gap:10px; padding:12px 14px; border-top:2px solid var(--line); background:#f6faff; position:sticky; bottom:0;}
+  input, select, textarea{
+    width:100%;
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:10px 10px;
+    font-weight:900;
+    font-size:14px;
+    outline:none;
+  }
+  .foot{
+    display:flex; justify-content:flex-end; gap:10px;
+    padding:12px 14px;
+    border-top:2px solid var(--line);
+    background:#f6faff;
+    position:sticky; bottom:0;
+  }
   .foot button{border-color:rgba(47,94,168,.35); background:#fff; color:var(--blue);}
   .foot button.primary{background:var(--blue); color:#fff; border-color:#1c3f74;}
   .foot button.danger{background:#fff; color:var(--bad); border-color:rgba(177,27,27,.35);}
+
   .choiceGrid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
-  .choice{border:2px solid var(--line); border-radius:14px; padding:10px; background:#fff; display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:1000; color:var(--text);}
+  .choice{
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+    background:#fff;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-weight:1000; color:var(--text);
+  }
+  .choice input{width:20px;height:20px;}
+
   .editPad{display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; margin-top:10px;}
   .editPad button{flex:1 1 120px; border:2px solid var(--line); background:#fff; color:var(--text); padding:12px 10px; border-radius:14px;}
   .editPad button.x{border-color:rgba(177,27,27,.35); color:var(--bad);}
   .editPad button.check{border-color:rgba(31,138,59,.35); color:var(--good);}
   .editPad button.q{border-color:rgba(176,122,0,.35); color:var(--warn);}
-  .tinyNote{margin-top:10px; font-size:12px; font-weight:900; color:var(--muted);}
+
+  #homeScreen{
+    display:none;
+    max-width:920px;
+    margin:12px auto 0;
+    padding:0 10px;
+  }
+  .homeCard{
+    background:rgba(255,255,255,.14);
+    border:2px solid rgba(255,255,255,.28);
+    border-radius:18px;
+    padding:16px;
+    color:#fff;
+    box-shadow:0 16px 50px rgba(0,0,0,.25);
+  }
+  .homeTop{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .homeIcon{
+    width:56px; height:56px; border-radius:16px;
+    background:rgba(255,255,255,.16);
+    border:2px solid rgba(255,255,255,.35);
+    display:grid; place-items:center;
+    font-weight:1000; font-size:22px;
+  }
+  .homeTitle{font-weight:1000; font-size:22px;}
+  .homeSub{opacity:.9; font-weight:800; margin-top:2px;}
+  .homeBtns{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .homeBtns button{
+    background:rgba(255,255,255,.16);
+    border-color:rgba(255,255,255,.45);
+  }
+  .slotInfo{margin-top:10px; opacity:.92; font-weight:900; font-size:12px;}
+
   @media (max-width:520px){
     header.top{padding:10px 12px;}
     .titleWrap .h1{font-size:20px;}
-    button{padding:9px 10px; font-size:13px; border-radius:11px;}
-    .trayGrid{grid-template-columns:repeat(3,1fr);}
-    td:first-child{width:32%;}
+    button, a.btnLink{padding:9px 10px; font-size:13px; border-radius:11px;}
+    td:first-child{width:36%;}
     .phCell{font-size:11px;}
+    .tabs{gap:8px;}
+    .legend{gap:6px;}
+    .legend .tag{padding:5px 8px;}
   }
-.rowLabel .pill{
-    display: inline-block;
-    margin: 0;
-    font-size: 9px;
-    padding: 2px 7px;
-  }
-
-  .rowLabel .nameText{
-    line-height: 1.15;
-  }
-}
-
-
-
-  @media (max-width:520px){
-    .rowLabel2{gap:4px;}
-    .rowMeta{gap:4px;}
-  }
-
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="titleWrap"><div class="h1">Detective Notes</div></div>
+  <div class="titleWrap">
+    <div class="appIcon">🕵️</div>
+    <div><div class="h1">Detective Notes</div></div>
+  </div>
   <div class="btnRow">
+    <button class="primary" id="btnHome">Home</button>
     <button class="primary" id="btnNewGame">New Game</button>
     <button class="primary" id="btnGuess">Guess</button>
     <button class="primary" id="btnMyCards">My Cards</button>
     <button class="ghost" id="btnPlayers">Players</button>
     <button class="ghost" id="btnLists">Lists</button>
+    <button class="ghost" id="btnUndo" disabled>Undo</button>
+    <a class="btnLink" id="btnAmazon" target="_blank" rel="noopener" href="https://www.amazon.com/s?k=clue+board+game">Buy Clue</a>
     <button class="danger" id="btnReset">Reset</button>
   </div>
 </header>
 
-<main>
+<div id="homeScreen">
+  <div class="homeCard">
+    <div class="homeTop">
+      <div class="homeIcon">🕵️</div>
+      <div>
+        <div class="homeTitle">Detective Notes</div>
+        <div class="homeSub">Play a new game or continue your last one.</div>
+      </div>
+    </div>
+    <div class="homeBtns">
+      <button class="primary" id="homePlay">Play</button>
+      <button class="primary" id="homeContinue">Continue Game</button>
+      <button class="ghost" id="homeManage">Manage Saves</button>
+    </div>
+    <div class="slotInfo" id="slotInfo"></div>
+  </div>
+</div>
+
+<main id="mainApp">
   <div class="card">
     <div class="tabs">
       <button class="tab active" data-tab="people">WHO?</button>
       <button class="tab" data-tab="items">WHAT?</button>
       <button class="tab" data-tab="rooms">WHERE?</button>
+    </div>
+
+    <div class="legend">
+      <div class="tag"><span class="lgIcon check">✓</span> Confirmed (they have it)</div>
+      <div class="tag"><span class="lgIcon x">X</span> Not possible</div>
+      <div class="tag"><span class="lgIcon q">?</span> Maybe / Unknown</div>
     </div>
 
     <div id="errBox"></div>
@@ -174,34 +390,41 @@
     <div class="tray">
       <div class="trayTop">
         <div class="t">My Cards</div>
-        <div class="tinyNote" style="margin:0;">(placeholders you can replace later)</div>
+        <div class="tinyNote">(chips)</div>
       </div>
       <div class="trayGrid" id="trayGrid"></div>
     </div>
   </div>
 </main>
 
-<!-- Players -->
 <div class="overlay" id="ovPlayers">
   <div class="modal">
-    <header><div><div class="h">Players</div><div class="s">Use 2–5 players. Don’t include yourself.</div></div><button id="closePlayers">Close</button></header>
+    <header>
+      <div>
+        <div class="h">Players</div>
+        <div class="s">Select total players (including you). Sheet only tracks opponents.</div>
+      </div>
+      <button id="closePlayers">Close</button>
+    </header>
     <div class="body">
       <div class="row">
         <div class="field">
-          <label>Active players</label>
-          <select id="selActive">
-            <option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option>
+          <label>Total players (including you)</label>
+          <select id="selTotal">
+            <option value="2">2 (1 opponent)</option>
+            <option value="3">3 (2 opponents)</option>
+            <option value="4">4 (3 opponents)</option>
+            <option value="5" selected>5 (4 opponents)</option>
           </select>
         </div>
       </div>
       <div class="row" id="playerInputs"></div>
-      <div class="tinyNote">Unused columns are greyed out automatically.</div>
+      <div class="tinyNote">You are not listed as a column. Opponents are P1–P4.</div>
     </div>
     <div class="foot"><button class="primary" id="savePlayers">Save</button></div>
   </div>
 </div>
 
-<!-- Lists -->
 <div class="overlay" id="ovLists">
   <div class="modal">
     <header><div><div class="h">Lists</div><div class="s">Edit the names for WHO / WHAT / WHERE.</div></div><button id="closeLists">Close</button></header>
@@ -217,7 +440,6 @@
   </div>
 </div>
 
-<!-- Guess -->
 <div class="overlay" id="ovGuess">
   <div class="modal">
     <header><div><div class="h">Make a guess</div><div class="s">Pick WHO, WHAT, WHERE and who showed you a card.</div></div><button id="closeGuess">Close</button></header>
@@ -229,7 +451,7 @@
       </div>
       <div class="row">
         <div class="field">
-          <label>Who showed a card?</label>
+          <label>Which opponent showed a card?</label>
           <select id="gResponder"></select>
           <div class="tinyNote" id="guessOwnedNote"></div>
         </div>
@@ -242,7 +464,6 @@
   </div>
 </div>
 
-<!-- Shown -->
 <div class="overlay" id="ovShown">
   <div class="modal">
     <header><div><div class="h">What was shown?</div><div class="s">Pick the exact card they showed you.</div></div><button id="closeShown">Close</button></header>
@@ -250,7 +471,7 @@
       <div class="field">
         <label>Card shown</label>
         <select id="shownPick"></select>
-        <div class="tinyNote">If you don’t know which card, choose <b>Unknown</b> (adds ❓ to all 3).</div>
+        <div class="tinyNote">If you don’t know which card, choose <b>Unknown</b> (adds ? to all 3).</div>
       </div>
     </div>
     <div class="foot">
@@ -260,7 +481,6 @@
   </div>
 </div>
 
-<!-- My Cards -->
 <div class="overlay" id="ovMyCards">
   <div class="modal">
     <header><div><div class="h">My Cards</div><div class="s">Select the cards you are holding (shows at the bottom).</div></div><button id="closeMyCards">Close</button></header>
@@ -270,7 +490,7 @@
         <div class="field"><label>WHAT?</label><div class="choiceGrid" id="mcItems"></div></div>
         <div class="field"><label>WHERE?</label><div class="choiceGrid" id="mcRooms"></div></div>
       </div>
-      <div class="tinyNote">Anything you select becomes <b>MY CARD</b> and is ignored for “No one”.</div>
+      <div class="tinyNote">Your cards get highlighted yellow and are ignored for “No one”.</div>
     </div>
     <div class="foot">
       <button class="danger" id="mcClear">Clear</button>
@@ -279,7 +499,6 @@
   </div>
 </div>
 
-<!-- Edit -->
 <div class="overlay" id="ovEdit">
   <div class="modal" style="max-width:520px;">
     <header><div><div class="h">Mark cell</div><div class="s" id="editSubtitle">Choose X, ✓, ?, or clear.</div></div><button id="closeEdit">Close</button></header>
@@ -290,7 +509,18 @@
         <button class="q" id="setQ">❓ ?</button>
         <button id="setClear">Clear</button>
       </div>
-      <div class="tinyNote">If you set ✓ on a card, this app auto-fills X on the rest of that row and greys it out.</div>
+      <div class="tinyNote">If you set ✓ on a row for any opponent, the app auto-fills X on the rest of that row.</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ovSaves">
+  <div class="modal" style="max-width:560px;">
+    <header><div><div class="h">Save Slots</div><div class="s">Only 2 slots. Continue uses the last active slot.</div></div><button id="closeSaves">Close</button></header>
+    <div class="body" id="savesBody"></div>
+    <div class="foot">
+      <button class="danger" id="wipeAllSaves">Wipe All</button>
+      <button class="primary" id="closeSaves2">Done</button>
     </div>
   </div>
 </div>
@@ -298,105 +528,145 @@
 <script>
 (function(){
   "use strict";
-  const VERSION="20251220v4";
-  const LS_KEY="clue_card_state_v3";
-  const errBox=document.getElementById("errBox");
-  function showErr(msg){ errBox.style.display="block"; errBox.textContent=msg; }
-  window.addEventListener("error",(e)=>showErr("JS error: "+(e.message||"unknown")));
-  window.addEventListener("unhandledrejection",(e)=>showErr("Promise error: "+(e.reason && e.reason.message ? e.reason.message : e.reason || "unknown")));
+  const VERSION="20251222v1";
+  const LS_ROOT="detective_notes_saves_v1";
 
-  const DEFAULT = {
-    activePlayers:5,
-    players:["Player 1","Player 2","Player 3","Player 4","Player 5"],
+  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+  function esc(s){ return (s??"").toString().replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+  function markToText(v){ return v===1?"X":v===2?"✓":v===3?"?":""; }
+  function markClass(v){ return v===1?"x":v===2?"check":v===3?"q":""; }
+
+  const DEFAULT_STATE = {
+    totalPlayers:5,
+    opponents:4,
+    players:["P1","P2","P3","P4"],
     lists:{
       people:["Green","Mustard","Orchid","Peacock","Plum","Scarlett"],
       items:["Candlestick","Dagger","Lead Pipe","Revolver","Rope","Wrench"],
       rooms:["Ballroom","Billiard Room","Conservatory","Dining Room","Hall","Kitchen","Library","Lounge","Study"]
     },
     marks:{people:[],items:[],rooms:[]},
-    myCards:{people:[],items:[],rooms:[]}
+    myCards:{people:[],items:[],rooms:[]},
+    ui:{tab:"people"}
   };
 
-  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
-
-  function loadState(){
+  function loadSaves(){
     try{
-      const raw=localStorage.getItem(LS_KEY);
-      if(!raw) return deepClone(DEFAULT);
+      const raw=localStorage.getItem(LS_ROOT);
+      if(!raw) return {activeSlot:1, slots:{1:null,2:null}};
       const obj=JSON.parse(raw);
-      const s=deepClone(DEFAULT);
-      if(obj && typeof obj==="object"){
-        const ap=Number(obj.activePlayers);
-        if([2,3,4,5].includes(ap)) s.activePlayers=ap;
-        if(Array.isArray(obj.players)) s.players=obj.players.slice(0,5).concat(DEFAULT.players).slice(0,5);
-        if(obj.lists && typeof obj.lists==="object"){
-          ["people","items","rooms"].forEach(k=>{
-            if(Array.isArray(obj.lists[k]) && obj.lists[k].length) s.lists[k]=obj.lists[k];
-          });
+      return {
+        activeSlot: obj.activeSlot===2 ? 2 : 1,
+        slots:{
+          1: obj.slots && obj.slots[1] ? obj.slots[1] : null,
+          2: obj.slots && obj.slots[2] ? obj.slots[2] : null
         }
-        if(obj.marks && typeof obj.marks==="object") s.marks=obj.marks;
-        if(obj.myCards && typeof obj.myCards==="object") s.myCards=obj.myCards;
-      }
-      return s;
+      };
     }catch(e){
-      return deepClone(DEFAULT);
+      return {activeSlot:1, slots:{1:null,2:null}};
     }
   }
+  function saveSaves(){ localStorage.setItem(LS_ROOT, JSON.stringify(saves)); }
 
-  // state is created before anything uses it
-  let state = loadState();
+  function normalizeState(s){
+    const st = deepClone(DEFAULT_STATE);
+    if(s && typeof s==="object"){
+      const tp=Number(s.totalPlayers);
+      if([2,3,4,5].includes(tp)) st.totalPlayers=tp;
+      st.opponents = Math.max(1, Math.min(4, st.totalPlayers-1));
 
-  function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-  function esc(s){ return (s??"").toString().replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
-  function markToText(v){ return v===1?"X":v===2?"✓":v===3?"?":""; }
-  function markClass(v){ return v===1?"x":v===2?"check":v===3?"q":""; }
+      if(Array.isArray(s.players)){
+        st.players = s.players.slice(0,4).concat(DEFAULT_STATE.players).slice(0,4);
+      }
+      if(s.lists && typeof s.lists==="object"){
+        ["people","items","rooms"].forEach(k=>{
+          if(Array.isArray(s.lists[k]) && s.lists[k].length) st.lists[k]=s.lists[k];
+        });
+      }
+      if(s.marks && typeof s.marks==="object") st.marks=s.marks;
+      if(s.myCards && typeof s.myCards==="object") st.myCards=s.myCards;
+      if(s.ui && typeof s.ui==="object" && ["people","items","rooms"].includes(s.ui.tab)) st.ui.tab=s.ui.tab;
+    }
+    return st;
+  }
+
+  let saves = loadSaves();
+  let state = saves.slots[saves.activeSlot] ? normalizeState(saves.slots[saves.activeSlot]) : normalizeState(DEFAULT_STATE);
+
+  /* errors */
+  const errBox=document.getElementById("errBox");
+  function showErr(msg){ errBox.style.display="block"; errBox.textContent=msg; }
+  window.addEventListener("error",(e)=>showErr("JS error: "+(e.message||"unknown")));
+  window.addEventListener("unhandledrejection",(e)=>showErr("Promise error: "+(e.reason && e.reason.message ? e.reason.message : e.reason || "unknown")));
+
+  /* undo */
+  const undoBtn = document.getElementById("btnUndo");
+  const HISTORY_LIMIT = 50;
+  let history = [];
+  function snapshotForUndo(){
+    history.push(JSON.stringify(state));
+    if(history.length>HISTORY_LIMIT) history.shift();
+    undoBtn.disabled = history.length===0;
+  }
+  function undo(){
+    if(!history.length) return;
+    const prev = history.pop();
+    state = normalizeState(JSON.parse(prev));
+    undoBtn.disabled = history.length===0;
+    renderAll(true);
+  }
+
+  function persist(){
+    saves.slots[saves.activeSlot] = deepClone(state);
+    saveSaves();
+  }
 
   function ensureMarks(){
     ["people","items","rooms"].forEach(sec=>{
       const rows=state.lists[sec].length;
       if(!Array.isArray(state.marks[sec])) state.marks[sec]=[];
       for(let r=0;r<rows;r++){
-        if(!Array.isArray(state.marks[sec][r])) state.marks[sec][r]=[0,0,0,0,0];
-        while(state.marks[sec][r].length<5) state.marks[sec][r].push(0);
+        if(!Array.isArray(state.marks[sec][r])) state.marks[sec][r]=[0,0,0,0];
+        while(state.marks[sec][r].length<4) state.marks[sec][r].push(0);
+        state.marks[sec][r]=state.marks[sec][r].slice(0,4);
+        for(let p=state.opponents;p<4;p++) state.marks[sec][r][p]=0;
       }
     });
   }
 
-  function isOwnedRow(sec,r){
-    const name=state.lists[sec][r];
-    if((state.myCards[sec]||[]).includes(name)) return true;
-    for(let p=0;p<state.activePlayers;p++) if(state.marks[sec][r][p]===2) return true;
+  function isMine(sec, name){ return (state.myCards[sec]||[]).includes(name); }
+  function rowHasAnyCheck(sec,r){
+    for(let p=0;p<state.opponents;p++) if((state.marks[sec][r][p]||0)===2) return true;
     return false;
-  }
-
-  function applyMyCardsOwnership(){
-    ["people","items","rooms"].forEach(sec=>{
-      for(let r=0;r<state.lists[sec].length;r++){
-        const name=state.lists[sec][r];
-        if((state.myCards[sec]||[]).includes(name)){
-          for(let p=0;p<state.activePlayers;p++) state.marks[sec][r][p]=1;
-        }
-      }
-    });
   }
 
   function enforceRowRules(sec){
     for(let r=0;r<state.lists[sec].length;r++){
       const name=state.lists[sec][r];
-      const mine=(state.myCards[sec]||[]).includes(name);
+      const mine=isMine(sec,name);
       let hasCheck=false;
-      for(let p=0;p<state.activePlayers;p++) if(state.marks[sec][r][p]===2){ hasCheck=true; break; }
-      if(mine) for(let p=0;p<state.activePlayers;p++) state.marks[sec][r][p]=1;
-      if(hasCheck) for(let p=0;p<state.activePlayers;p++) if(state.marks[sec][r][p]!==2) state.marks[sec][r][p]=1;
+      for(let p=0;p<state.opponents;p++) if(state.marks[sec][r][p]===2){ hasCheck=true; break; }
+      if(mine){
+        for(let p=0;p<state.opponents;p++) state.marks[sec][r][p]=1;
+      }
+      if(hasCheck){
+        for(let p=0;p<state.opponents;p++){
+          if(state.marks[sec][r][p]!==2) state.marks[sec][r][p]=1;
+        }
+      }
     }
   }
 
   function computeSolved(sec){
     const solved=[];
     for(let r=0;r<state.lists[sec].length;r++){
-      if(isOwnedRow(sec,r)) continue;
+      const name=state.lists[sec][r];
+      if(isMine(sec,name)) continue;
+      if(rowHasAnyCheck(sec,r)) continue;
       let allX=true;
-      for(let p=0;p<state.activePlayers;p++) if(state.marks[sec][r][p]!==1){ allX=false; break; }
+      for(let p=0;p<state.opponents;p++){
+        if(state.marks[sec][r][p]!==1){ allX=false; break; }
+      }
       if(allX) solved.push(r);
     }
     return solved;
@@ -404,47 +674,43 @@
 
   function renderHeader(){
     const ph=document.getElementById("playerHeader");
-    const parts=[`<div class="phCell">PLAYERS</div>`];
-    for(let i=0;i<5;i++){
-      const disabled=i>=state.activePlayers;
-      const name=state.players[i]||(`Player ${i+1}`);
+    const parts=[`<div class="phCell">OPPONENTS</div>`];
+    for(let i=0;i<4;i++){
+      const disabled=i>=state.opponents;
+      const name=state.players[i]||(`P${i+1}`);
       parts.push(`<div class="phCell ${disabled?"colDisabled":""}">${esc(name)}</div>`);
     }
     ph.innerHTML=parts.join("");
+  }
+
+  function rowClassFor(sec, r){
+    const name=state.lists[sec][r];
+    const mine=isMine(sec,name);
+    const solved = computeSolved(sec);
+    const solvedMain = solved.length===1 ? solved[0] : null;
+    const isSolved = (solvedMain===r);
+
+    if(isSolved) return "rowSolved";
+    if(mine) return "rowMine";
+    if(rowHasAnyCheck(sec,r)) return "rowOther";
+    return "";
   }
 
   function renderSection(sec){
     enforceRowRules(sec);
     const solved=computeSolved(sec);
     const solvedMain = solved.length===1 ? solved[0] : null;
+
     let h=`<table><tbody>`;
     for(let r=0;r<state.lists[sec].length;r++){
-      const name=state.lists[sec][r];
-      const mine=(state.myCards[sec]||[]).includes(name);
-      let hasCheck=false;
-      for(let p=0;p<state.activePlayers;p++) if(state.marks[sec][r][p]===2){ hasCheck=true; break; }
-      const owned=mine||hasCheck;
-      const isFound=solvedMain===r;
-
-      const otherOwned = hasCheck && !mine;
-      const hasSolved = solvedMain!==null;
-      const dimSolvedOthers = hasSolved && !isFound;
-
-      let rowCls = "";
-      if(mine) rowCls = "mineRow";
-      else if(otherOwned) rowCls = "ownedOtherRow";
-      if(isFound) rowCls = (rowCls ? rowCls+" " : "") + "solvedRow";
-      if(dimSolvedOthers) rowCls = (rowCls ? rowCls+" " : "") + "dimSolvedRow";
-
-      const rowDisabled = mine || otherOwned || dimSolvedOthers;
-
-      h+=`<tr class="${rowCls}">`;
-      // label cell (no extra OWNED/MY CARD text — just color/row styling)
-      h+=`<td><div class="rowLabel2"><div class="rowName"><span class="nameText">${esc(name)}</span></div></div></td>`;
-
-      for(let p=0;p<5;p++){
-        const disabled=(p>=state.activePlayers) || rowDisabled;
-        const v=state.marks[sec][r][p]||0;
+      const vName=state.lists[sec][r];
+      h+=`<tr class="${rowClassFor(sec,r)}">`;
+      h+=`<td><div class="rowLabel"><span class="nameText">${esc(vName)}</span>`+
+          (solvedMain===r?`<span class="pill solved">SOLVED</span>`:"")+
+          `</div></td>`;
+      for(let p=0;p<4;p++){
+        const disabled=p>=state.opponents;
+        const v=(state.marks[sec][r][p]||0);
         h+=`<td><button class="cellBtn ${markClass(v)}" ${disabled?"disabled":""} data-sec="${sec}" data-row="${r}" data-player="${p}">${markToText(v)}</button></td>`;
       }
       h+=`</tr>`;
@@ -453,29 +719,17 @@
     return h;
   }
 
-  function makeThumb(cat,name){
-    const c=esc((cat||"").toUpperCase());
-    return `<div class="thumb"><div class="cat">${c}</div>${esc(name)}</div>`;
-  }
-
   function renderTray(){
     const tray=document.getElementById("trayGrid");
     const cards=[];
     (state.myCards.people||[]).forEach(n=>cards.push({k:"WHO",v:n}));
     (state.myCards.items||[]).forEach(n=>cards.push({k:"WHAT",v:n}));
     (state.myCards.rooms||[]).forEach(n=>cards.push({k:"WHERE",v:n}));
-
     if(!cards.length){
       tray.innerHTML=`<div class="tinyNote">No cards selected yet. Tap <b>My Cards</b> or <b>New Game</b>.</div>`;
       return;
     }
-    tray.innerHTML=cards.map(c=>`
-      <div class="mini">
-        <div class="k">${esc(c.k)}</div>
-        <div class="v">${esc(c.v)}</div>
-        ${makeThumb(c.k,c.v)}
-      </div>
-    `).join("");
+    tray.innerHTML=cards.map(c=>`<div class="chip"><span class="k">${esc(c.k)}</span><span>${esc(c.v)}</span></div>`).join("");
   }
 
   function renderSolvedBanner(){
@@ -483,48 +737,57 @@
     document.getElementById("bannerSolved").style.display = ok ? "block" : "none";
   }
 
-  function renderAll(){
+  function setTab(tab){
+    state.ui.tab = tab;
+    document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
+    document.getElementById("tab-people").style.display = tab==="people" ? "" : "none";
+    document.getElementById("tab-items").style.display  = tab==="items" ? "" : "none";
+    document.getElementById("tab-rooms").style.display  = tab==="rooms" ? "" : "none";
+    persist();
+  }
+
+  function renderAll(skipPersist){
     ensureMarks();
-    applyMyCardsOwnership();
     renderHeader();
     document.getElementById("tab-people").innerHTML=renderSection("people");
     document.getElementById("tab-items").innerHTML=renderSection("items");
     document.getElementById("tab-rooms").innerHTML=renderSection("rooms");
     renderTray();
     renderSolvedBanner();
-    saveState();
+    setTab(state.ui.tab || "people");
+    if(!skipPersist) persist();
   }
 
-  function setTab(tab){
-    document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
-    document.getElementById("tab-people").style.display = tab==="people" ? "" : "none";
-    document.getElementById("tab-items").style.display  = tab==="items" ? "" : "none";
-    document.getElementById("tab-rooms").style.display  = tab==="rooms" ? "" : "none";
-  }
-
-  // overlays
+  /* overlays */
   const ovPlayers=document.getElementById("ovPlayers");
   const ovLists=document.getElementById("ovLists");
   const ovGuess=document.getElementById("ovGuess");
   const ovShown=document.getElementById("ovShown");
   const ovMyCards=document.getElementById("ovMyCards");
   const ovEdit=document.getElementById("ovEdit");
+  const ovSaves=document.getElementById("ovSaves");
+
   const open=(ov)=>ov.style.display="flex";
   const close=(ov)=>ov.style.display="none";
 
   function openPlayers(){
-    document.getElementById("selActive").value=String(state.activePlayers);
+    document.getElementById("selTotal").value=String(state.totalPlayers);
     const wrap=document.getElementById("playerInputs");
     wrap.innerHTML="";
-    for(let i=0;i<5;i++){
-      wrap.innerHTML += `<div class="field"><label>Player ${i+1}</label><input id="p_${i}" value="${esc(state.players[i]||"")}"/></div>`;
+    for(let i=0;i<4;i++){
+      wrap.innerHTML += `<div class="field"><label>Opponent ${i+1}</label><input id="p_${i}" value="${esc(state.players[i]||"")}"/></div>`;
     }
     open(ovPlayers);
   }
   function savePlayers(){
-    state.activePlayers=Math.max(2, Math.min(5, Number(document.getElementById("selActive").value)));
+    snapshotForUndo();
+    const total = Math.max(2, Math.min(5, Number(document.getElementById("selTotal").value)));
+    state.totalPlayers = total;
+    state.opponents = total-1;
     const arr=[];
-    for(let i=0;i<5;i++) arr.push((document.getElementById(`p_${i}`).value||"").trim() || `Player ${i+1}`);
+    for(let i=0;i<4;i++){
+      arr.push((document.getElementById(`p_${i}`).value||"").trim() || `P${i+1}`);
+    }
     state.players=arr;
     renderAll();
     close(ovPlayers);
@@ -542,6 +805,7 @@
     const i=parse(document.getElementById("taItems").value);
     const r=parse(document.getElementById("taRooms").value);
     if(!p.length||!i.length||!r.length) return;
+    snapshotForUndo();
     state.lists.people=p; state.lists.items=i; state.lists.rooms=r;
     state.marks={people:[],items:[],rooms:[]};
     state.myCards={people:[],items:[],rooms:[]};
@@ -549,7 +813,7 @@
     close(ovLists);
   }
 
-  // Guess flow
+  /* guess */
   let pendingGuess=null;
   function fillGuess(){
     const gWho=document.getElementById("gWho");
@@ -558,9 +822,10 @@
     gWho.innerHTML=state.lists.people.map(x=>`<option>${esc(x)}</option>`).join("");
     gWhat.innerHTML=state.lists.items.map(x=>`<option>${esc(x)}</option>`).join("");
     gWhere.innerHTML=state.lists.rooms.map(x=>`<option>${esc(x)}</option>`).join("");
+
     const resp=document.getElementById("gResponder");
     const opts=[`<option value="none">No one (solution)</option>`];
-    for(let i=0;i<state.activePlayers;i++) opts.push(`<option value="${i}">${esc(state.players[i])}</option>`);
+    for(let i=0;i<state.opponents;i++) opts.push(`<option value="${i}">${esc(state.players[i])}</option>`);
     resp.innerHTML=opts.join("");
     updateGuessNote();
   }
@@ -569,14 +834,15 @@
     const what=document.getElementById("gWhat").value;
     const where=document.getElementById("gWhere").value;
     const owned=[];
-    if((state.myCards.people||[]).includes(who)) owned.push("WHO is your card");
-    if((state.myCards.items||[]).includes(what)) owned.push("WHAT is your card");
-    if((state.myCards.rooms||[]).includes(where)) owned.push("WHERE is your card");
+    if(isMine("people",who)) owned.push("WHO is your card");
+    if(isMine("items",what)) owned.push("WHAT is your card");
+    if(isMine("rooms",where)) owned.push("WHERE is your card");
     document.getElementById("guessOwnedNote").textContent = owned.length ? ("Owned: "+owned.join(" • ")+" (ignored for “No one”)") : "";
   }
   function openGuess(){ fillGuess(); open(ovGuess); }
 
   function applyGuess(){
+    snapshotForUndo();
     const who=document.getElementById("gWho").value;
     const what=document.getElementById("gWhat").value;
     const where=document.getElementById("gWhere").value;
@@ -587,7 +853,7 @@
 
     if(resp==="none"){
       [["people",wi],["items",ii],["rooms",ri]].forEach(([sec,idx])=>{
-        for(let p=0;p<state.activePlayers;p++) state.marks[sec][idx][p]=1;
+        for(let p=0;p<state.opponents;p++) state.marks[sec][idx][p]=1;
       });
       renderAll();
       close(ovGuess);
@@ -631,66 +897,188 @@
     close(ovShown); close(ovGuess);
   }
 
-  // My Cards
+  /* my cards */
   function buildMyCards(){
-    function build(sec, root, label){
+    function build(sec, root){
       root.innerHTML = state.lists[sec].map(name=>{
         const checked=(state.myCards[sec]||[]).includes(name)?"checked":"";
         return `
           <label class="choice">
-            <input type="checkbox" data-sec="${sec}" data-name="${esc(name)}" ${checked} style="width:18px;height:18px;">
+            <input type="checkbox" data-sec="${sec}" data-name="${esc(name)}" ${checked}>
             <span style="flex:1 1 auto;">${esc(name)}</span>
-            <span style="width:56px; flex:0 0 auto;">${makeThumb(label,name)}</span>
           </label>
         `;
       }).join("");
     }
-    build("people", document.getElementById("mcPeople"), "WHO");
-    build("items",  document.getElementById("mcItems"),  "WHAT");
-    build("rooms",  document.getElementById("mcRooms"),  "WHERE");
+    build("people", document.getElementById("mcPeople"));
+    build("items",  document.getElementById("mcItems"));
+    build("rooms",  document.getElementById("mcRooms"));
   }
   function openMyCards(){ buildMyCards(); open(ovMyCards); }
   function saveMyCards(){
+    snapshotForUndo();
     const sel=(sec)=>Array.from(document.querySelectorAll(`#ovMyCards input[data-sec="${sec}"]:checked`)).map(cb=>cb.dataset.name);
     state.myCards={people:sel("people"), items:sel("items"), rooms:sel("rooms")};
     renderAll(); close(ovMyCards);
   }
-  function clearMyCards(){ state.myCards={people:[],items:[],rooms:[]}; renderAll(); close(ovMyCards); }
+  function clearMyCards(){
+    snapshotForUndo();
+    state.myCards={people:[],items:[],rooms:[]};
+    renderAll(); close(ovMyCards);
+  }
 
-  // Edit
+  /* edit */
   let editTarget=null;
   function openEdit(sec,row,player){
     editTarget={sec,row,player};
-    document.getElementById("editSubtitle").textContent = sec.toUpperCase()+" • "+state.lists[sec][row]+" • "+state.players[player];
+    const who = state.lists[sec][row];
+    const pName = state.players[player] || `P${player+1}`;
+    document.getElementById("editSubtitle").textContent = sec.toUpperCase()+" • "+who+" • "+pName;
     open(ovEdit);
   }
   function setMark(v){
     if(!editTarget) return;
+    snapshotForUndo();
     state.marks[editTarget.sec][editTarget.row][editTarget.player]=v;
     renderAll();
     close(ovEdit);
   }
 
-  function newGame(){
+  /* home + saves */
+  const homeScreen=document.getElementById("homeScreen");
+  const mainApp=document.getElementById("mainApp");
+  const slotInfo=document.getElementById("slotInfo");
+
+  function slotSummary(slot){
+    const s = saves.slots[slot];
+    if(!s) return "Empty";
+    const st=normalizeState(s);
+    const c = (st.myCards.people?.length||0) + (st.myCards.items?.length||0) + (st.myCards.rooms?.length||0);
+    return `In progress • ${st.totalPlayers} players • ${c} my cards selected`;
+  }
+
+  function showHome(){
+    const has1 = !!saves.slots[1];
+    const has2 = !!saves.slots[2];
+    homeScreen.style.display="block";
+    mainApp.style.display="none";
+    document.getElementById("homeContinue").disabled = !(has1||has2);
+    slotInfo.textContent = `Slot 1: ${slotSummary(1)} • Slot 2: ${slotSummary(2)} • Active: Slot ${saves.activeSlot}`;
+  }
+  function showApp(){
+    homeScreen.style.display="none";
+    mainApp.style.display="";
+  }
+
+  function loadSlot(slot){
+    saves.activeSlot = slot;
+    state = saves.slots[slot] ? normalizeState(saves.slots[slot]) : normalizeState(DEFAULT_STATE);
+    history = [];
+    undoBtn.disabled = true;
+    saveSaves();
+    showApp();
+    renderAll(true);
+  }
+
+  function wipeBoardOnly(){
     state.marks={people:[],items:[],rooms:[]};
     state.myCards={people:[],items:[],rooms:[]};
+  }
+
+  function newGameInSlot(slot){
+    saves.activeSlot = slot;
+    const base = saves.slots[slot] ? normalizeState(saves.slots[slot]) : normalizeState(DEFAULT_STATE);
+    state = normalizeState(base);
+    wipeBoardOnly();
+    state.ui.tab="people";
+    saves.slots[slot]=deepClone(state);
+    saveSaves();
+    history=[];
+    undoBtn.disabled=true;
+    showApp();
+    renderAll(true);
+    openMyCards();
+  }
+
+  function openSaves(){
+    const wrap=document.getElementById("savesBody");
+    wrap.innerHTML = `
+      <div class="tinyNote" style="margin-bottom:10px;">Tap a slot to load it. Tap “New” to start a new game in that slot.</div>
+      <div style="display:grid; gap:10px;">
+        ${[1,2].map(slot=>{
+          const exists = !!saves.slots[slot];
+          return `
+            <div style="border:2px solid var(--line); border-radius:14px; padding:12px; background:#fff;">
+              <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:1000; color:var(--blue);">Slot ${slot} ${saves.activeSlot===slot ? "(Active)" : ""}</div>
+                  <div class="tinyNote" style="margin-top:2px;">${esc(slotSummary(slot))}</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="primary" data-action="loadSlot" data-slot="${slot}">Load</button>
+                  <button class="danger" data-action="newSlot" data-slot="${slot}">New</button>
+                  <button class="ghost" data-action="clearSlot" data-slot="${slot}" ${exists?"":"disabled"}>Clear</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+    open(ovSaves);
+  }
+
+  function clearSlot(slot){
+    saves.slots[slot]=null;
+    if(saves.activeSlot===slot) saves.activeSlot = (slot===1 ? 2 : 1);
+    saveSaves();
+  }
+
+  function wipeAllSaves(){
+    saves = {activeSlot:1, slots:{1:null,2:null}};
+    saveSaves();
+    state = normalizeState(DEFAULT_STATE);
+    history = [];
+    undoBtn.disabled = true;
+    showHome();
+    close(ovSaves);
+  }
+
+  /* buttons */
+  function newGame(){
+    snapshotForUndo();
+    wipeBoardOnly();
     renderAll();
     openMyCards();
   }
   function resetAll(){
-    state=deepClone(DEFAULT);
+    snapshotForUndo();
+    state=normalizeState(DEFAULT_STATE);
     renderAll();
     openPlayers();
   }
 
   document.addEventListener("click",(e)=>{
     const id=e.target && e.target.id;
+    if(id==="btnUndo") undo();
+
+    if(id==="btnHome") showHome();
+    if(id==="homePlay") openSaves();
+    if(id==="homeContinue"){
+      const a=saves.activeSlot;
+      if(saves.slots[a]) loadSlot(a);
+      else if(saves.slots[1]) loadSlot(1);
+      else if(saves.slots[2]) loadSlot(2);
+    }
+    if(id==="homeManage") openSaves();
+
     if(id==="btnPlayers") openPlayers();
     if(id==="btnLists") openLists();
     if(id==="btnGuess") openGuess();
     if(id==="btnMyCards") openMyCards();
     if(id==="btnNewGame") newGame();
     if(id==="btnReset") resetAll();
+
     if(id==="closePlayers") close(ovPlayers);
     if(id==="savePlayers") savePlayers();
     if(id==="closeLists") close(ovLists);
@@ -710,18 +1098,38 @@
     if(id==="setQ") setMark(3);
     if(id==="setClear") setMark(0);
 
+    if(id==="closeSaves" || id==="closeSaves2") close(ovSaves);
+    if(id==="wipeAllSaves") wipeAllSaves();
+
     const cell=e.target && e.target.closest && e.target.closest(".cellBtn");
     if(cell && !cell.disabled) openEdit(cell.dataset.sec, Number(cell.dataset.row), Number(cell.dataset.player));
 
     const tabBtn=e.target && e.target.closest && e.target.closest(".tab");
-    if(tabBtn) setTab(tabBtn.dataset.tab);
+    if(tabBtn){ snapshotForUndo(); setTab(tabBtn.dataset.tab); undoBtn.disabled = history.length===0; }
+
+    const action=e.target && e.target.dataset && e.target.dataset.action;
+    if(action){
+      const slot=Number(e.target.dataset.slot);
+      if(action==="loadSlot"){ close(ovSaves); loadSlot(slot); }
+      if(action==="clearSlot"){ clearSlot(slot); openSaves(); }
+      if(action==="newSlot"){
+        const exists=!!saves.slots[slot];
+        if(exists && !confirm("Overwrite Slot "+slot+" with a NEW game?")) return;
+        close(ovSaves);
+        newGameInSlot(slot);
+      }
+    }
   });
 
   ["gWho","gWhat","gWhere"].forEach(id=>document.getElementById(id).addEventListener("change", updateGuessNote));
-  [ovPlayers,ovLists,ovGuess,ovShown,ovMyCards,ovEdit].forEach(ov=>ov.addEventListener("click",(e)=>{ if(e.target===ov) close(ov); }));
+  [ovPlayers,ovLists,ovGuess,ovShown,ovMyCards,ovEdit,ovSaves].forEach(ov=>ov.addEventListener("click",(e)=>{ if(e.target===ov) close(ov); }));
 
-  // First render
-  renderAll();
+  function init(){
+    const hasAny = !!saves.slots[1] || !!saves.slots[2];
+    if(hasAny) showHome(); else showApp();
+    renderAll(true);
+  }
+  init();
 
   if("serviceWorker" in navigator){
     window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js?v="+VERSION).catch(()=>{}));
